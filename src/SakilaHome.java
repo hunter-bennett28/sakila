@@ -5,11 +5,11 @@
  * Date: Jul 14, 2020		
  */
 
-//Test change
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
-//Another comment
-
-public class SakilaHome
+public class SakilaHome extends JFrame
 {
-	int x = 1;
+
 }
