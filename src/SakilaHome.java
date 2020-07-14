@@ -7,7 +7,9 @@
 
 //Test change
 
+//Another comment
+
 public class SakilaHome
 {
-
+	int x = 1;
 }
