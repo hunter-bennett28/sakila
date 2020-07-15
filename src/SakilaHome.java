@@ -11,8 +11,8 @@ import javax.swing.*;
 
 public class SakilaHome extends JFrame
 {
-	final int WINDOW_WIDTH = 600;
-	final int WINDOW_HEIGHT = 400;
+	final int WINDOW_WIDTH = 400;
+	final int WINDOW_HEIGHT = 600;
 	BorderLayout homePage;
 	public JPanel homePanel;
 	public JPanel otherPanel;
