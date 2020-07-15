@@ -11,5 +11,18 @@ import javax.swing.*;
 
 public class SakilaHome extends JFrame
 {
-
+	final int WINDOW_WIDTH = 400;
+	final int WINDOW_HEIGHT = 600;
+	
+ public SakilaHome()
+ {
+	 this.setLocationRelativeTo(null);
+	 this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	 this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+	 
+	 //Decide layout
+	 //this.setLayout(new ...);
+	 
+	 this.setVisible(true);
+ }
 }
