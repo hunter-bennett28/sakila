@@ -26,4 +26,8 @@ public class SakilaHome extends JFrame
 	 //Fuck you Connor
 	 this.setVisible(true);
  }
+
+ public static void main(String[] args) {
+	 new SakilaHome();
+ }
 }
