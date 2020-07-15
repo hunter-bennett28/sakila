@@ -23,6 +23,7 @@ public class SakilaHome extends JFrame
 	 //Decide layout
 	 //this.setLayout(new ...);
 	 
+	 //Fuck you Connor
 	 this.setVisible(true);
  }
 }
