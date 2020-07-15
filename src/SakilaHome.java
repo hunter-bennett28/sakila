@@ -23,11 +23,12 @@ public class SakilaHome extends JFrame
 	 //Decide layout
 	 //this.setLayout(new ...);
 	 
-	 //Fuck you Connor
+	 //Fuck you Connor /////////////////////////////////////
 	 this.setVisible(true);
  }
 
- public static void main(String[] args) {
+ public static void main(String[] args)
+ {
 	 new SakilaHome();
  }
 }
