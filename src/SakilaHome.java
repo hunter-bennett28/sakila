@@ -14,18 +14,19 @@ public class SakilaHome extends JFrame
 	final int WINDOW_WIDTH = 400;
 	final int WINDOW_HEIGHT = 600;
 	
- public SakilaHome()
- {
-	 this.setLocationRelativeTo(null);
-	 this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	 this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+	public SakilaHome()
+	{
+		this.setLocationRelativeTo(null);
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	 
-	 //Decide layout
-	 //this.setLayout(new ...);
+		//Decide layout
+		//this.setLayout(new ...);
 	 
-	 //Fuck you Connor /////////////////////////////////////
-	 this.setVisible(true);
- }
+		//Another Test
+		//Fuck you Connor /////////////////////////////////////git 
+		this.setVisible(true);
+	}
 
  public static void main(String[] args)
  {
