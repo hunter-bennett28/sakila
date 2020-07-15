@@ -11,14 +11,14 @@ import javax.swing.*;
 
 public class SakilaHome extends JFrame
 {
-	final int WINDOW_WIDTH = 400;
-	final int WINDOW_HEIGHT = 600;
+	final int WINDOW_WIDTH = 1200;
+	final int WINDOW_HEIGHT = 1200;
 	
 	public SakilaHome()
 	{
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		this.setSize(200, 100);
 	 
 		//Decide layout
 		//this.setLayout(new ...);
