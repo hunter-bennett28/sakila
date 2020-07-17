@@ -17,14 +17,14 @@ public class SakilaHome extends JFrame
 	public SakilaHome()
 	{
 		this.setLocationRelativeTo(null);
-		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	 
 		//Decide layout
 		//this.setLayout(new ...);
 	 
 		//Another Test
-		//Fuck you Connor /////////////////////////////////////git 
+		//Fuck you Hunter, it works now /////////////////////////////////////git 
 		this.setVisible(true);
 	}
 
