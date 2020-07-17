@@ -8,7 +8,8 @@ import java.sql.Statement;
  * Name: SakilaController.java
  * Author: Connor Black
  * Date: Jul. 17, 2020
- * Desc:
+ * Desc: This is the controller that interacts with the Sakila database for various
+ * 			methods for selecting and altering data.
  */
 
 public class SakilaController {
@@ -27,7 +28,6 @@ public class SakilaController {
 			connection = DriverManager.getConnection(
 					"jdbc:mysql://localhost:3306/sakila?useSSL=false&allowPublicKeyRetrieval=true", 
 					"root","password");
-			
 		}
 		catch(SQLException ex) {
 			System.out.println("SQL Exception caught: " + ex.getMessage());

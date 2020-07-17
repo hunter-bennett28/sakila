@@ -32,9 +32,11 @@ public class SakilaHome extends JFrame
 	{
 		new SakilaHome();
 
-		//Uncomment to test if controller is working
-		SakilaController sk=new SakilaController();
-		sk.testConnection();
+		//GitHub should pass the classpath as well but just in case...
+		//Uncomment to test if controller is working	
+		
+		//SakilaController sk=new SakilaController();
+		//sk.testConnection();
 
 		/*
 		 * If it isnt working, make sure that your build path incorporates the MySQL connector
@@ -44,6 +46,5 @@ public class SakilaHome extends JFrame
 		 * right click on the project > build path > Configure Build Path > Class Path > Add external JARs
 		 * and connect your connector_j jar file to the build path 
 		 */
-		
 	}
 }
