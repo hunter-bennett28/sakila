@@ -4,8 +4,8 @@ AWT GUI for viewing and editing MySQL example database 'Sakila'
 ## How to Add Code
 1. Set up git for Eclipse: https://www.vogella.com/tutorials/EclipseGit/article.html
 2. Right click project, go to teams -> switch to -> new branch and name the branch whatever you want
-3. Eclipse should now show in square brackets beside the project in the explorer window that you're on the new branh
-4. Type your new code in this branch
+3. Eclipse should now show in square brackets beside the project in the explorer window that you're on the new branch
+4. Type your new code
 5. When done, stage your changes for commit by....
 6. Go to Window -> Show View -> Other... and Open Git -> Git Staging
 7. Drag the files you changed and want to save changes to in the Git Staging window from Unstaged to Staged, and type a description of the changes in the Commit Message
