@@ -3,6 +3,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Name: SakilaController.java
@@ -55,5 +57,34 @@ public class SakilaController {
 		catch (SQLException ex) {
 			System.out.println("SQL Exception caught: " + ex.getMessage());
 		}
+	}
+	
+	public boolean addActor(String firstName, String lastName)
+	{
+		try
+		{
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
+			Date date = new Date();
+			String lastUpdate = sdf.format(date.getTime());
+			
+			statement = connection.createStatement();
+			int returnValue = statement.executeUpdate(
+						"INSERT INTO actor (first_name, last_name, last_update)" +
+						"VALUES ('" + firstName + "', '" + lastName + "', '" + lastUpdate + "');"
+					);
+			
+			if(returnValue == 1)
+				return true;
+		}
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Exception caught: " + ex.getMessage());
+		}
+		
+		return false;
 	}
 }
