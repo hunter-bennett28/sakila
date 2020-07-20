@@ -1,7 +1,7 @@
 /**
  * Program Name: SakilaHome.java
  * Purpose:
- * Coder: Hunter Bennett
+ * Coder: Hunter Bennett, Connor Black
  * Date: Jul 14, 2020		
  */
 
