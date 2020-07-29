@@ -35,7 +35,7 @@ public class AddActor extends JPanel implements SakilaTab
 		this.add(firstName);
 
 		//Last name row
-		this.add(new JLabel("*Last Name:*", JLabel.RIGHT));
+		this.add(new JLabel("*Last Name:", JLabel.RIGHT));
 		lastName = new JTextField();
 		this.add(lastName);
 
