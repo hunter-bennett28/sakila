@@ -90,11 +90,7 @@ public class AddActor extends JPanel implements SakilaTab
 			//Allow for no movie selection
 			if(allFieldsEntered)
 			{
-				String message = home.controller.addActor(first, last, (String)films.getSelectedItem())
-						? "Actor added successfully!"
-						: "Error: actor not added.";
-				
-				JOptionPane.showMessageDialog(home, message);
+				JOptionPane.showMessageDialog(home, home.controller.addActor(first, last, (String)films.getSelectedItem()));
 			}	
 		}
 	}

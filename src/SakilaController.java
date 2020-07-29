@@ -180,11 +180,11 @@ public class SakilaController {
 	 * Purpose: Adds an actor the the database in a transaction format, as well as an entry
 	 * 					to the film_actor junction table if a film the actor is in is provided
 	 * Accepts: a String first name, a String last name, and an optional String title of the movie they are in
-	 * Returns: true if add was successful
+	 * Returns: A String describing the outcome of the function
 	 */
-	public boolean addActor(String firstName, String lastName, String movieTitle)
+	public String addActor(String firstName, String lastName, String movieTitle)
 	{
-		
+		String errorMessage = "Actor not added.";
 		try
 		{
 			//Check to see if actor already exists in the database before adding
@@ -224,7 +224,7 @@ public class SakilaController {
 						if(addJunctionReturnValue > 0)
 						{
 							connection.commit();
-							return true;
+							return "Actor added successfully!";
 						}
 						else
 						{
@@ -236,22 +236,22 @@ public class SakilaController {
 				else //if no movie provided, just commit the actor add
 				{
 					connection.commit();
-					return true;
+					return "Actor added successfully!";
 				}
 			}
 			else //Actor already existed in database so it was not added
 			{
-				return false;
+				return "Actor already exists in the database.";
 			}
 			
 		}
 		catch(SQLException ex)
 		{
-			System.out.println("SQL Exception caught: " + ex.getMessage());
+			errorMessage += " SQL Exception: " + ex.getMessage();
 		}
 		catch(Exception ex)
 		{
-			System.out.println("Exception caught: " + ex.getMessage());
+			errorMessage += " Exception: " + ex.getMessage();
 		}
 		finally
 		{
@@ -265,11 +265,11 @@ public class SakilaController {
 			}
 			catch (SQLException ex)
 			{
-				System.out.println("SQL Exception caught: " + ex.getMessage());
+				errorMessage += " SQL Exception: " + ex.getMessage();
 			}
 		}
 		
-		return false;
+		return errorMessage;
 	}
 
 	/**
