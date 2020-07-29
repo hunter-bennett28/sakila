@@ -15,3 +15,6 @@ AWT GUI for viewing and editing MySQL example database 'Sakila'
 1. The git output will ideally give you a link to create a pull request, but if not...
 2. go to the github project -> Pull requests and click New Pull Request
 3. The rest is pretty straight forward, make sure you select your new branch compared to master, describe the changes in the message and send everybody else the link
+
+## Icon Max Size
+18 x 18
