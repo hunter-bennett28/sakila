@@ -26,6 +26,7 @@ public class SakilaHome extends JFrame
 		//Create database connection
 		this.controller = new SakilaController();
 		
+		//Boiler plate code
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -34,7 +35,7 @@ public class SakilaHome extends JFrame
 		JTabbedPane tabPane = new JTabbedPane();
 		this.add(tabPane);
 		
-		//Add tabs to tab pane
+		/* Add tabs to tab pane */
 		
 		//Will currently throw an error if clicked back to because it doesn't implement SakilaTab interface
 		tabPane.addTab("test", new JPanel()); //blank pane to test on click listener for switching to add actor
