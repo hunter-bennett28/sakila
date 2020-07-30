@@ -28,13 +28,11 @@ public class FilmReport extends JPanel implements SakilaTab {
 	public FilmReport(SakilaHome home)
 	{
 		super(new BorderLayout());
-
-
+		
 		//Set up window
 		this.home = home;
 		this.width = 700;
 		this.height = 250;
-		this.setLayout(new BorderLayout());
 
 		//Construct window
 		//Place table

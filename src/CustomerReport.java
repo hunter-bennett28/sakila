@@ -33,8 +33,6 @@ public class CustomerReport extends JPanel implements SakilaTab {
 		this.home = home;
 		this.width = 700;
 		this.height = 250;
-		this.setLayout(new BorderLayout());
-
 
 		//Construct window
 		//Place table
