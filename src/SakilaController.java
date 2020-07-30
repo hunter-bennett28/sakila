@@ -25,7 +25,7 @@ public class SakilaController {
 	//This is the controller that will interact with the database
 	//Set up the calls you will need to make to the database
 
-	public SakilaController() {
+	public void createConnection(){
 
 		try {
 			//Set up connection to Sakila database
@@ -42,22 +42,21 @@ public class SakilaController {
 	}
 
 	//Tests connection to the database, Should select all actors if it worked
-	public void testConnection() {
+	public void closeConnection() {
 		try {
-			statement = connection.createStatement();
-			result = statement.executeQuery("SELECT * FROM sakila.actor;");
-
-			//Print all actors
-			while(result.next())
-			{
-				System.out.println(result.getString("actor_id")+
-						", "+result.getString("first_name") +
-						", " + result.getString("last_name") +
-						", " + result.getString("last_update"));
+			//Close it in reverse order
+			if(result!=null) {
+				result.close();
+			}
+			if(statement!=null) {
+				statement.close();
+			}
+			if(connection!=null) {
+				connection.close();
 			}
 		} 
 		catch (SQLException ex) {
-			System.out.println("SQL Exception caught: " + ex.getMessage());
+			System.out.println("SQL Exception caught while closing database objects: " + ex.getMessage());
 		}
 	}
 
@@ -65,6 +64,9 @@ public class SakilaController {
 	{
 		try
 		{
+			//Establish a connection to the db
+			createConnection();
+
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
 			Date date = new Date();
 			String lastUpdate = sdf.format(date.getTime());
@@ -86,13 +88,19 @@ public class SakilaController {
 		{
 			System.out.println("Exception caught: " + ex.getMessage());
 		}
-
+		finally {
+			//Close the connection to the db
+			closeConnection();
+		}
 		return false;
 	}
 
 	//Returns the id value (store #) for every store in the database
 	public ResultSet getStores() {
 		try {
+			//Establish a connection to the db
+			createConnection();
+			
 			statement=connection.createStatement();
 			result= statement.executeQuery("SELECT store_id\r\n" + 
 					"FROM store;");
@@ -107,13 +115,19 @@ public class SakilaController {
 		{
 			System.out.println("Exception caught: " + ex.getMessage());
 		}
-
+		finally {
+			//Close the connection to the db
+			closeConnection();
+		}
 		return null;
 	}
 
 	//Returns all categories in the Sakila Database
 	public ResultSet getCategories() {
 		try {
+			//Establish a connection to the db
+			createConnection();
+			
 			statement=connection.createStatement();
 			result= statement.executeQuery("SELECT name\r\n" + 
 					"FROM category;");
@@ -128,7 +142,10 @@ public class SakilaController {
 		{
 			System.out.println("Exception caught: " + ex.getMessage());
 		}
-
+		finally {
+			//Close the connection to the db
+			closeConnection();
+		}
 		return null;
 	}
 
@@ -139,7 +156,9 @@ public class SakilaController {
 	{
 		try
 		{
-
+			//Establish a connection to the db
+			createConnection();
+			
 			//Construct the where statement
 			String conditions="WHERE 1=1";
 
@@ -189,7 +208,10 @@ public class SakilaController {
 		{
 			System.out.println("Exception caught: " + ex.getMessage());
 		}
-
+		finally {
+			//Close the connection to the db
+			closeConnection();
+		}
 		//Error occurred
 		return null;
 	}
@@ -201,6 +223,9 @@ public class SakilaController {
 	{
 		try
 		{
+			//Establish a connection to the db
+			createConnection();
+			
 			//Construct the where statement
 			String conditions="WHERE 1=1";
 
@@ -216,7 +241,7 @@ public class SakilaController {
 					conditions+"\r\n" + 
 					"GROUP BY c.customer_id\r\n" + 
 					"ORDER BY ? DESC, ? DESC;");
-			
+
 			//If its sorted by income, then order by col 3 (income) then col 4 (rental amount)
 			if(isSortedByIncome) {
 				statement.setInt(1, 3);
@@ -227,7 +252,7 @@ public class SakilaController {
 				statement.setInt(1, 4);
 				statement.setInt(2, 3);
 			}
-			
+
 			result = statement.executeQuery();
 			return result;
 		}
@@ -239,7 +264,10 @@ public class SakilaController {
 		{
 			System.out.println("Exception caught: " + ex.getMessage());
 		}
-
+		finally {
+			//Close the connection to the db
+			closeConnection();
+		}
 		//Error occurred
 		return null;
 	}
