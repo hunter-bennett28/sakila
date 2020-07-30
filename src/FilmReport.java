@@ -48,58 +48,20 @@ public class FilmReport extends JPanel implements SakilaTab {
 		userInputPanel.add(new JLabel("Category"));
 
 		//Fetch list of categories and load them into cbCategory
-		ResultSet rs=home.controller.getCategories();
-
-		//Check if data was returned and load it into a combo box
-		Vector<String> categories = new Vector<String>();
-		if(!(rs==null)) {
-			try {
-				categories.add("All");
-				while(rs.next()) {
-					categories.add(rs.getString("name"));
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				System.out.print("Error loading categories into container");
-			}
-		}
-		else {
-			categories.clear();
-			categories.add("Error");
-			System.out.println("Error retrieving categories");
-		}
+		Vector<String> categories=home.controller.getCategories();
 		cbCategory=new JComboBox<String>(categories);
-
 		userInputPanel.add(cbCategory);
 
+		
 		//Load store # into combo box
 		userInputPanel.add(new JLabel("Store #"));
-		rs=home.controller.getStores();
 
 		//Check if data was returned and load it into a combo box
-		Vector<String> stores = new Vector<String>();
-
-		if(!(rs==null)) {
-			try {
-				stores.add("All");
-				while(rs.next()) {
-					stores.add(""+rs.getInt("store_id"));
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				System.out.print("Error loading stores into container");
-			}
-		}
-		else {
-			stores.clear();
-			stores.add("Error");
-			System.out.println("Error retrieving categories");
-		}
+		Vector<String> stores = home.controller.getStores();
 		cbStores=new JComboBox<String>(stores);
 		userInputPanel.add(cbStores);
 
+		//Set up the dates
 		userInputPanel.add(new JLabel("Start Date"));
 		//Set up formatting on the text fields
 		String dateFormat=String.format("dd/mm/yyyy");

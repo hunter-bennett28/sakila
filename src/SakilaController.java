@@ -1,11 +1,6 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.*;
 import java.util.Date;
 
 /**
@@ -100,18 +95,25 @@ public class SakilaController
 	}
 
 	//Returns the id value (store #) for every store in the database
-	public ResultSet getStores()
+	public Vector<String> getStores()
 	{
 		try 
 		{
 			//Establish a connection to the db
 			createConnection();
-			
+
 			statement=connection.createStatement();
 			result= statement.executeQuery("SELECT store_id\r\n" + 
 					"FROM store;");
+			
+			//Load into vector
+			Vector<String> stores=new Vector<String>();
+			while(result.next()) 
+			{
+				stores.add(result.getString("name"));
+			}
 
-			return result;
+			return stores;
 		}
 		catch(SQLException ex)
 		{
@@ -130,18 +132,27 @@ public class SakilaController
 	}
 
 	//Returns all categories in the Sakila Database
-	public ResultSet getCategories()
+	public Vector<String> getCategories()
 	{
 		try 
 		{
 			//Establish a connection to the db
 			createConnection();
-			
+
 			statement=connection.createStatement();
 			result= statement.executeQuery("SELECT name\r\n" + 
 					"FROM category;");
 
-			return result;
+			//Load into vector
+			Vector<String> categories=new Vector<String>();
+			categories.add("All");
+			
+			while(result.next()) 
+			{
+				categories.add(result.getString("name"));
+			}
+			
+			return categories;
 		}
 		catch(SQLException ex)
 		{
@@ -167,12 +178,13 @@ public class SakilaController
 		{
 			//Establish a connection to the db
 			createConnection();
-			
+
 			//Construct the where statement
 			String conditions="WHERE 1=1";
 
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
+			//Check which conditions have been passed
 			if(startDate!=null) 
 			{
 				String sDate = sdf.format(startDate);
@@ -239,7 +251,7 @@ public class SakilaController
 		{
 			//Establish a connection to the db
 			createConnection();
-			
+
 			//Construct the where statement
 			String conditions="WHERE 1=1";
 

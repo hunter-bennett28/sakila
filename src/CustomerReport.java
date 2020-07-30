@@ -49,27 +49,7 @@ public class CustomerReport extends JPanel implements SakilaTab {
 
 		//Load store # into combo box
 		userInputPanel.add(new JLabel("Store #"));
-		ResultSet rs=home.controller.getStores();
-
-		Vector<String> stores = new Vector<String>();
-
-		if(!(rs==null)) {
-			try {
-				stores.add("All");
-				while(rs.next()) {
-					stores.add(""+rs.getInt("store_id"));
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				System.out.print("Error loading stores into container");
-			}
-		}
-		else {
-			stores.clear();
-			stores.add("Error");
-			System.out.println("Error retrieving categories");
-		}
+		Vector<String> stores = home.controller.getStores();
 		
 		cbStores=new JComboBox<String>(stores);
 		userInputPanel.add(cbStores);
