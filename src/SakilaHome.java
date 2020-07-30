@@ -42,8 +42,11 @@ public class SakilaHome extends JFrame
 		AddActor addActor = new AddActor(this);
 		tabPane.addTab("Add Actor", new ImageIcon("images/actor.png"), addActor, "Add an actor to the database");
 
-		ReportFilm getReport = new ReportFilm(this);
-		tabPane.addTab("Report Film", new ImageIcon("images/actor.png"), getReport, "Get a report from the database");
+		FilmReport reportFilm = new FilmReport(this);
+		tabPane.addTab("Film Report", new ImageIcon("images/Magnifying Glass.png"), reportFilm, "Get a report from the database");
+		
+		CustomerReport reportCustomer = new CustomerReport(this);
+		tabPane.addTab("Customer Report", new ImageIcon("images/userSilhouette.png"), reportCustomer, "Get a report from the database");
 
 		//Setup change listener for clicking on tabs
 		tabPane.addChangeListener(new TabChangeListener(this, tabPane));

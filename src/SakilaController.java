@@ -1,5 +1,6 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -89,14 +90,14 @@ public class SakilaController {
 		return false;
 	}
 
-
+	//Returns the id value (store #) for every store in the database
 	public ResultSet getStores() {
 		try {
 			statement=connection.createStatement();
-			ResultSet rs= statement.executeQuery("SELECT store_id\r\n" + 
+			result= statement.executeQuery("SELECT store_id\r\n" + 
 					"FROM store;");
 
-			return rs;
+			return result;
 		}
 		catch(SQLException ex)
 		{
@@ -110,13 +111,14 @@ public class SakilaController {
 		return null;
 	}
 
+	//Returns all categories in the Sakila Database
 	public ResultSet getCategories() {
 		try {
 			statement=connection.createStatement();
-			ResultSet rs= statement.executeQuery("SELECT name\r\n" + 
+			result= statement.executeQuery("SELECT name\r\n" + 
 					"FROM category;");
 
-			return rs;
+			return result;
 		}
 		catch(SQLException ex)
 		{
@@ -133,7 +135,7 @@ public class SakilaController {
 	/*This gets a report based on the criteria passed, searches both dates inclusively
 	 * If a field is left null then it will not be queried (and storeId=0)
 	 */
-	public ResultSet getReport(String category, Date startDate, Date endDate, int storeId)
+	public ResultSet getFilmReport(String category, Date startDate, Date endDate, int storeId)
 	{
 		try
 		{
@@ -147,7 +149,7 @@ public class SakilaController {
 				String sDate = sdf.format(startDate);
 				conditions+=" and r.rental_date >= '"+ sDate +"'";
 			}
-			
+
 			if(endDate!=null) {
 				//Increment the end date by 1 as the date defaults to 00:00:00 UTC when querying a date
 				String eDate = sdf.format(endDate);
@@ -165,7 +167,7 @@ public class SakilaController {
 			}
 			//Query the database
 			statement = connection.createStatement();
-			ResultSet rs = statement.executeQuery(
+			result = statement.executeQuery(
 					//Select the film name, category, # of rentals, and amount earned
 					"SELECT title AS Title, c.name AS Category, count(title) AS 'Rentals', LPAD(CONCAT('$',CAST(SUM(amount) AS DECIMAL(10,2))),10,' ') AS Income\r\n" + 
 					"FROM rental r INNER JOIN payment p ON r.rental_id = p.rental_id\r\n" + 
@@ -177,7 +179,57 @@ public class SakilaController {
 					"GROUP BY title\r\n" + 
 					"ORDER BY 4 DESC, 3 DESC;"
 					);
-			return rs;
+			return result;
+		}
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Exception caught: " + ex.getMessage());
+		}
+
+		//Error occurred
+		return null;
+	}
+
+	/*This gets a report on users based on how much income they generated or films they have rented
+	 * Default sorts by rental
+	 */
+	public ResultSet getCustomerReport(int storeId, boolean isSortedByIncome)
+	{
+		try
+		{
+			//Construct the where statement
+			String conditions="WHERE 1=1";
+
+			if(storeId!=0) {
+				conditions+=" and store_id="+storeId;
+			}
+			//Query the database
+			PreparedStatement statement = connection.prepareStatement("SELECT first_name AS 'First Name', c.last_name AS 'Last Name', LPAD(CONCAT('$',CAST(SUM(amount) AS DECIMAL(10,2))),10,' ') AS 'Rental Income', COUNT(r.customer_id) AS 'Rentals'\r\n" + 
+					"FROM customer c INNER JOIN payment p\r\n" + 
+					"ON c.customer_id=p.customer_id\r\n" + 
+					"INNER JOIN rental r\r\n" + 
+					"ON r.rental_id=p.rental_id\r\n" + 
+					conditions+"\r\n" + 
+					"GROUP BY c.customer_id\r\n" + 
+					"ORDER BY ? DESC, ? DESC;");
+			
+			//If its sorted by income, then order by col 3 (income) then col 4 (rental amount)
+			if(isSortedByIncome) {
+				statement.setInt(1, 3);
+				statement.setInt(2, 4);
+			}
+			else {
+				//Default to order by rental quantity then income
+				statement.setInt(1, 4);
+				statement.setInt(2, 3);
+			}
+			
+			result = statement.executeQuery();
+			return result;
 		}
 		catch(SQLException ex)
 		{
