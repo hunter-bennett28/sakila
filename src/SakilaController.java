@@ -1,12 +1,3 @@
-
-/**
- * Name: SakilaController.java
- * Author: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
- * Date: Jul. 17, 2020
- * Desc: This is the controller that interacts with the Sakila database for various
- * 			methods for selecting and altering data.
- */
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,12 +7,19 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
 import java.util.Vector;
 
-import com.mysql.cj.conf.ConnectionUrlParser.Pair;
+/**
+ * Name: SakilaController.java
+ * Author: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
+ * Date: Jul. 17, 2020
+ * Desc: This is the controller that interacts with the Sakila database for various
+ * 			methods for selecting and altering data.
+ */
 
-public class SakilaController {
+
+public class SakilaController
+{
 
 	//Connection Objects
 	Connection connection = null;
@@ -29,58 +27,34 @@ public class SakilaController {
 	ResultSet result = null;
 	PreparedStatement prepStatement = null;
 
-	public SakilaController() {
-
-		try {
+	public void createConnection() throws SQLException
+	{
+		if(connection == null)
+		{
 			//Set up connection to Sakila database
 			connection = DriverManager.getConnection(
 					"jdbc:mysql://localhost:3306/sakila?useSSL=false&allowPublicKeyRetrieval=true", 
 					"root","password");
 		}
-		catch(SQLException ex)
-		{
-			System.out.println("SQL Exception caught: " + ex.getMessage());
-		}
-		catch(Exception ex)
-		{
-			System.out.println("Exception caught: " + ex.getMessage());
-		}
 	}
-	
+
 	//Tests connection to the database, Should select all actors if it worked
-	public void testConnection()
+	public void closeConnection() 
 	{
 		try {
-			statement = connection.createStatement();
-			result = statement.executeQuery("SELECT * FROM sakila.actor;");
-		
-			//Print all actors
-			while(result.next())
-			{
-				System.out.println(result.getString("actor_id")+
-									", "+result.getString("first_name") +
-						            ", " + result.getString("last_name") +
-						            ", " + result.getString("last_update"));
+			//Close it in reverse order
+			if(result!=null) {
+				result.close();
+			}
+			if(statement!=null) {
+				statement.close();
+			}
+			if(connection!=null) {
+				connection.close();
 			}
 		} 
-		catch (SQLException ex)
-		{
-			System.out.println("SQL Exception caught: " + ex.getMessage());
-		}
-		finally
-		{
-			try
-			{
-				if(result != null)
-					result.close();
-				
-				if(statement != null)
-					statement.close();
-			}
-			catch (SQLException ex)
-			{
-				System.out.println("SQL Exception caught: " + ex.getMessage());
-			}
+		catch (SQLException ex) {
+			System.out.println("SQL Exception caught while closing database objects: " + ex.getMessage());
 		}
 	}
 		
