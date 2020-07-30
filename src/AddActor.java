@@ -14,26 +14,39 @@ public class AddActor extends JPanel implements SakilaTab
 	JButton addButton;
 	JTextField firstName, lastName;
 	SakilaHome home;
+	JComboBox<String> films;
 	int width, height;
 
 	public AddActor(SakilaHome home)
 	{
-		super(new GridLayout(3, 2, 10, 10));
-		
+		super(new GridLayout(4, 2, 10, 10));
+
+		/* Variable Declarations */
+
 		this.home = home;
 		this.width = home.WINDOW_WIDTH;
 		this.height = 250;
 		
-		//Add Components
-		this.add(new JLabel("First Name:", JLabel.RIGHT));
+		/* Add Components */
+
+		//First name row
+		this.add(new JLabel("*First Name:", JLabel.RIGHT));
 		firstName = new JTextField();
 		this.add(firstName);
-		
-		this.add(new JLabel("Last Name:", JLabel.RIGHT));
+
+		//Last name row
+		this.add(new JLabel("*Last Name:", JLabel.RIGHT));
 		lastName = new JTextField();
 		this.add(lastName);
-		
-		this.add(new JLabel());
+
+		//Film row
+		this.add(new JLabel("Film:", JLabel.RIGHT));
+		films = new JComboBox<String>(home.controller.getFilms()); //populate films combo box
+		films.setEditable(false);
+		this.add(films);
+
+		//Button row
+		this.add(new JLabel("* is required", JLabel.RIGHT));
 		addButton = new JButton("Add Actor");
 		addButton.addActionListener(new ActorListener());
 		this.add(addButton);
@@ -48,6 +61,12 @@ public class AddActor extends JPanel implements SakilaTab
 	//Listener class
 	private class ActorListener implements ActionListener
 	{
+		/**
+		 * Method Name: actionPerformed(ActionEvent e)
+		 * Purpose: Event handler that ensures text fields are filled and adds an actor to the database if so
+		 * Accepts: an ActionEvent with the event information
+		 * Returns: Void
+		 */
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
@@ -61,20 +80,17 @@ public class AddActor extends JPanel implements SakilaTab
 				firstName.setText("Please enter a name");
 				allFieldsEntered = false;
 			}
-			
+
 			if(last.isEmpty())
 			{
 				lastName.setText("Please enter a name");
 				allFieldsEntered = false;
 			}
-			
+
+			//Allow for no movie selection
 			if(allFieldsEntered)
 			{
-				String message = home.controller.addActor(first, last)
-						? "Actor added successfully!"
-						: "Error: actor not added.";
-				
-				JOptionPane.showMessageDialog(home, message);
+				JOptionPane.showMessageDialog(home, home.controller.addActor(first, last, (String)films.getSelectedItem()));
 			}	
 		}
 	}
