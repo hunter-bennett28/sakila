@@ -11,11 +11,12 @@ import javax.swing.*;
 
 public class AddActor extends JPanel implements SakilaTab
 {
-	JButton addButton;
+	JButton addButton, refreshButton;
 	JTextField firstName, lastName;
 	SakilaHome home;
 	JComboBox<String> films;
 	int width, height;
+	DefaultComboBoxModel<String> filmsModel;
 
 	public AddActor(SakilaHome home)
 	{
@@ -41,15 +42,29 @@ public class AddActor extends JPanel implements SakilaTab
 
 		//Film row
 		this.add(new JLabel("Film:", JLabel.RIGHT));
-		films = new JComboBox<String>(home.controller.getFilms()); //populate films combo box
+		filmsModel = new DefaultComboBoxModel<String>(home.controller.getFilms());
+		films = new JComboBox<String>(filmsModel); //populate films combo box
 		films.setEditable(false);
 		this.add(films);
 
 		//Button row
-		this.add(new JLabel("* is required", JLabel.RIGHT));
+		//this.add(new JLabel("* is required", JLabel.RIGHT));
 		addButton = new JButton("Add Actor");
 		addButton.addActionListener(new ActorListener());
 		this.add(addButton);
+		
+		refreshButton = new JButton("Refresh Films");
+		refreshButton.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				filmsModel = new DefaultComboBoxModel<String>(home.controller.getFilms());
+				films.setModel(filmsModel);
+			}
+		});
+		this.add(refreshButton);
 	}
 
 	@Override
