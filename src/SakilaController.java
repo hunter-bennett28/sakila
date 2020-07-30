@@ -1,12 +1,3 @@
-
-/**
- * Name: SakilaController.java
- * Author: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
- * Date: Jul. 17, 2020
- * Desc: This is the controller that interacts with the Sakila database for various
- * 			methods for selecting and altering data.
- */
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -18,6 +9,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
 
+/**
+ * Name: SakilaController.java
+ * Author: Connor Black
+ * Date: Jul. 17, 2020
+ * Desc: This is the controller that interacts with the Sakila database for various
+ * 			methods for selecting and altering data.
+ */
+
+
 public class SakilaController {
 
 	//Connection Objects
@@ -25,13 +25,57 @@ public class SakilaController {
 	Statement statement = null;
 	ResultSet result = null;
 
-	public SakilaController() {
-
-		try {
+	public void createConnection() throws SQLException
+	{
+		if(connection == null)
+		{
 			//Set up connection to Sakila database
 			connection = DriverManager.getConnection(
 					"jdbc:mysql://localhost:3306/sakila?useSSL=false&allowPublicKeyRetrieval=true", 
 					"root","password");
+		}
+	}
+
+	//Tests connection to the database, Should select all actors if it worked
+	public void closeConnection() 
+	{
+		try {
+			//Close it in reverse order
+			if(result!=null) {
+				result.close();
+			}
+			if(statement!=null) {
+				statement.close();
+			}
+			if(connection!=null) {
+				connection.close();
+			}
+		} 
+		catch (SQLException ex) {
+			System.out.println("SQL Exception caught while closing database objects: " + ex.getMessage());
+		}
+	}
+		
+	//Returns the id value (store #) for every store in the database
+	public Vector<String> getStores()
+	{
+		try 
+		{
+			//Establish a connection to the db
+			createConnection();
+
+			statement=connection.createStatement();
+			result= statement.executeQuery("SELECT store_id\r\n" + 
+					"FROM store;");
+			
+			//Load into vector
+			Vector<String> stores=new Vector<String>();
+			while(result.next()) 
+			{
+				stores.add(result.getString("name"));
+			}
+
+			return stores;
 		}
 		catch(SQLException ex)
 		{
@@ -41,45 +85,185 @@ public class SakilaController {
 		{
 			System.out.println("Exception caught: " + ex.getMessage());
 		}
+		finally 
+		{
+			//Close the connection to the db
+			closeConnection();
+		}
+		return null;
 	}
-	
-	//Tests connection to the database, Should select all actors if it worked
-	public void testConnection()
+
+	//Returns all categories in the Sakila Database
+	public Vector<String> getCategories()
 	{
-		try {
-			statement = connection.createStatement();
-			result = statement.executeQuery("SELECT * FROM sakila.actor;");
-		
-			//Print all actors
-			while(result.next())
+		try 
+		{
+			//Establish a connection to the db
+			createConnection();
+
+			statement=connection.createStatement();
+			result= statement.executeQuery("SELECT name\r\n" + 
+					"FROM category;");
+
+			//Load into vector
+			Vector<String> categories=new Vector<String>();
+			categories.add("All");
+			
+			while(result.next()) 
 			{
-				System.out.println(result.getString("actor_id")+
-									", "+result.getString("first_name") +
-						            ", " + result.getString("last_name") +
-						            ", " + result.getString("last_update"));
+				categories.add(result.getString("name"));
 			}
-		} 
-		catch (SQLException ex)
+			
+			return categories;
+		}
+		catch(SQLException ex)
 		{
 			System.out.println("SQL Exception caught: " + ex.getMessage());
 		}
+		catch(Exception ex)
+		{
+			System.out.println("Exception caught: " + ex.getMessage());
+		}
+		finally {
+			//Close the connection to the db
+			closeConnection();
+		}
+		return null;
+	}
+
+	/*This gets a report based on the criteria passed, searches both dates inclusively
+	 * If a field is left null then it will not be queried (and storeId=0)
+	 */
+	public ResultSet getFilmReport(String category, Date startDate, Date endDate, int storeId)
+	{
+		try
+		{
+			//Establish a connection to the db
+			createConnection();
+
+			//Construct the where statement
+			String conditions="WHERE 1=1";
+
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+
+			//Check which conditions have been passed
+			if(startDate!=null) 
+			{
+				String sDate = sdf.format(startDate);
+				conditions+=" and r.rental_date >= '"+ sDate +"'";
+			}
+
+			if(endDate!=null) 
+			{
+				//Increment the end date by 1 as the date defaults to 00:00:00 UTC when querying a date
+				String eDate = sdf.format(endDate);
+				Calendar c = Calendar.getInstance();
+				c.setTime(sdf.parse(eDate));
+				c.add(Calendar.DATE, 1); //Add 1 day
+				eDate = sdf.format(c.getTime());  
+				conditions+=" and r.rental_date <= '"+ eDate +"'";
+			}
+			if(storeId!=0)
+			{
+				conditions+=" and store_id="+storeId;
+			}
+			if(category!=null) 
+			{
+				conditions+=" and c.name='"+ category+"'";
+			}
+			//Query the database
+			statement = connection.createStatement();
+			result = statement.executeQuery(
+					//Select the film name, category, # of rentals, and amount earned
+					"SELECT title AS Title, c.name AS Category, count(title) AS 'Rentals', LPAD(CONCAT('$',CAST(SUM(amount) AS DECIMAL(10,2))),10,' ') AS Income\r\n" + 
+					"FROM rental r INNER JOIN payment p ON r.rental_id = p.rental_id\r\n" + 
+					"LEFT JOIN inventory i ON r.inventory_id=i.inventory_id\r\n" + 
+					"INNER JOIN film f ON i.film_id=f.film_id\r\n" + 
+					"INNER JOIN film_category fc ON f.film_id=fc.film_id\r\n" + 
+					"INNER JOIN category c ON fc.category_id= c.category_id\r\n" + 
+					conditions+"\r\n" + 
+					"GROUP BY title\r\n" + 
+					"ORDER BY 4 DESC, 3 DESC;"
+					);
+			return result;
+		}
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Exception caught: " + ex.getMessage());
+		}
 		finally
 		{
-			try
-			{
-				if(result != null)
-					result.close();
-				
-				if(statement != null)
-					statement.close();
-			}
-			catch (SQLException ex)
-			{
-				System.out.println("SQL Exception caught: " + ex.getMessage());
-			}
+			//Close the connection to the db
+			closeConnection();
 		}
+		//Error occurred
+		return null;
 	}
-		
+
+	/*This gets a report on users based on how much income they generated or films they have rented
+	 * Default sorts by rental
+	 */
+	public ResultSet getCustomerReport(int storeId, boolean isSortedByIncome)
+	{
+		try
+		{
+			//Establish a connection to the db
+			createConnection();
+
+			//Construct the where statement
+			String conditions="WHERE 1=1";
+
+			if(storeId!=0)
+			{
+				conditions+=" and store_id="+storeId;
+			}
+			//Query the database
+			PreparedStatement statement = connection.prepareStatement("SELECT first_name AS 'First Name', c.last_name AS 'Last Name', LPAD(CONCAT('$',CAST(SUM(amount) AS DECIMAL(10,2))),10,' ') AS 'Rental Income', COUNT(r.customer_id) AS 'Rentals'\r\n" + 
+					"FROM customer c INNER JOIN payment p\r\n" + 
+					"ON c.customer_id=p.customer_id\r\n" + 
+					"INNER JOIN rental r\r\n" + 
+					"ON r.rental_id=p.rental_id\r\n" + 
+					conditions+"\r\n" + 
+					"GROUP BY c.customer_id\r\n" + 
+					"ORDER BY ? DESC, ? DESC;");
+
+			//If its sorted by income, then order by col 3 (income) then col 4 (rental amount)
+			if(isSortedByIncome) 
+			{
+				statement.setInt(1, 3);
+				statement.setInt(2, 4);
+			}
+			else 
+			{
+				//Default to order by rental quantity then income
+				statement.setInt(1, 4);
+				statement.setInt(2, 3);
+			}
+
+			result = statement.executeQuery();
+			return result;
+		}
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Exception caught: " + ex.getMessage());
+		}
+		finally
+		{
+			//Close the connection to the db
+			closeConnection();
+		}
+		//Error occurred
+		return null;
+	}
+	
 	/**
 	 * Method Name: getActorIdByName(String firstName, String lastName)
 	 * Purpose: retrieves the integer id of actor with given name from database
@@ -94,6 +278,7 @@ public class SakilaController {
 		
 		try
 		{
+			createConnection();
 			//Use new objects because a statement can still be open while calling this
 			getIdStatement = connection.createStatement();
 			
@@ -121,6 +306,7 @@ public class SakilaController {
 				if(getIdStatement != null)
 					getIdStatement.close();
 				
+				closeConnection();
 			} 
 			catch(SQLException ex)
 			{
@@ -144,6 +330,7 @@ public class SakilaController {
 		ResultSet results = null;
 		try
 		{
+			createConnection();
 			getIdStatement = connection.createStatement();
 			results = getIdStatement.executeQuery(
 					"SELECT film_id FROM film WHERE title = '" + title + "';"
@@ -167,6 +354,7 @@ public class SakilaController {
 				if(getIdStatement != null)
 					getIdStatement.close();
 				
+				closeConnection();
 			} 
 			catch(SQLException ex)
 			{
@@ -189,6 +377,7 @@ public class SakilaController {
 		String errorMessage = "Actor not added.";
 		try
 		{
+			createConnection();
 			//Check to see if actor already exists in the database before adding
 			if(getActorIdByName(firstName, lastName) == -1) //if it doesn't exist, add it
 			{
@@ -257,18 +446,7 @@ public class SakilaController {
 		}
 		finally
 		{
-			try
-			{
-				if(statement != null)
-					statement.close();
-				
-				//Turn connection back off "transaction mode"
-				connection.setAutoCommit(true);
-			}
-			catch (SQLException ex)
-			{
-				errorMessage += " SQL Exception: " + ex.getMessage();
-			}
+			closeConnection();
 		}
 		
 		return errorMessage;
@@ -287,6 +465,7 @@ public class SakilaController {
 		allFilms.add("");
 		try
 		{
+			createConnection();
 			statement = connection.createStatement();
 			result = statement.executeQuery("SELECT title FROM film");
 
@@ -304,18 +483,7 @@ public class SakilaController {
 		}
 		finally
 		{
-			try
-			{
-				if(result != null)
-					result.close();
-				
-				if(statement != null)
-					statement.close();
-			}
-			catch (SQLException ex)
-			{
-				System.out.println("SQL Exception caught: " + ex.getMessage());
-			}
+			closeConnection();
 		}
 
 		return allFilms;
