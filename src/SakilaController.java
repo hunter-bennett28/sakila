@@ -21,21 +21,12 @@ public class SakilaController
 	//This is the controller that will interact with the database
 	//Set up the calls you will need to make to the database
 
-	public void createConnection()
+	public void createConnection() throws SQLException
 	{
-		try 
-		{
-			//Set up connection to Sakila database
-			connection = DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/sakila?useSSL=false&allowPublicKeyRetrieval=true", 
-					"root","password");
-		}
-		catch(SQLException ex) {
-			System.out.println("SQL Exception caught: " + ex.getMessage());
-		}
-		catch(Exception ex) {
-			System.out.println("Exception caught: " + ex.getMessage());
-		}
+		//Set up connection to Sakila database
+		connection = DriverManager.getConnection(
+				"jdbc:mysql://localhost:3306/sakila?useSSL=false&allowPublicKeyRetrieval=true", 
+				"root","password");
 	}
 
 	//Tests connection to the database, Should select all actors if it worked
