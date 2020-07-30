@@ -16,7 +16,8 @@ import java.util.Date;
  * 			methods for selecting and altering data.
  */
 
-public class SakilaController {
+public class SakilaController 
+{
 
 	//Connection Objects
 	Connection connection = null;
@@ -25,9 +26,10 @@ public class SakilaController {
 	//This is the controller that will interact with the database
 	//Set up the calls you will need to make to the database
 
-	public void createConnection(){
-
-		try {
+	public void createConnection()
+	{
+		try 
+		{
 			//Set up connection to Sakila database
 			connection = DriverManager.getConnection(
 					"jdbc:mysql://localhost:3306/sakila?useSSL=false&allowPublicKeyRetrieval=true", 
@@ -42,7 +44,8 @@ public class SakilaController {
 	}
 
 	//Tests connection to the database, Should select all actors if it worked
-	public void closeConnection() {
+	public void closeConnection() 
+	{
 		try {
 			//Close it in reverse order
 			if(result!=null) {
@@ -88,7 +91,8 @@ public class SakilaController {
 		{
 			System.out.println("Exception caught: " + ex.getMessage());
 		}
-		finally {
+		finally 
+		{
 			//Close the connection to the db
 			closeConnection();
 		}
@@ -96,8 +100,10 @@ public class SakilaController {
 	}
 
 	//Returns the id value (store #) for every store in the database
-	public ResultSet getStores() {
-		try {
+	public ResultSet getStores()
+	{
+		try 
+		{
 			//Establish a connection to the db
 			createConnection();
 			
@@ -115,7 +121,8 @@ public class SakilaController {
 		{
 			System.out.println("Exception caught: " + ex.getMessage());
 		}
-		finally {
+		finally 
+		{
 			//Close the connection to the db
 			closeConnection();
 		}
@@ -123,8 +130,10 @@ public class SakilaController {
 	}
 
 	//Returns all categories in the Sakila Database
-	public ResultSet getCategories() {
-		try {
+	public ResultSet getCategories()
+	{
+		try 
+		{
 			//Establish a connection to the db
 			createConnection();
 			
@@ -164,12 +173,14 @@ public class SakilaController {
 
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
-			if(startDate!=null) {
+			if(startDate!=null) 
+			{
 				String sDate = sdf.format(startDate);
 				conditions+=" and r.rental_date >= '"+ sDate +"'";
 			}
 
-			if(endDate!=null) {
+			if(endDate!=null) 
+			{
 				//Increment the end date by 1 as the date defaults to 00:00:00 UTC when querying a date
 				String eDate = sdf.format(endDate);
 				Calendar c = Calendar.getInstance();
@@ -178,10 +189,12 @@ public class SakilaController {
 				eDate = sdf.format(c.getTime());  
 				conditions+=" and r.rental_date <= '"+ eDate +"'";
 			}
-			if(storeId!=0) {
+			if(storeId!=0)
+			{
 				conditions+=" and store_id="+storeId;
 			}
-			if(category!=null) {
+			if(category!=null) 
+			{
 				conditions+=" and c.name='"+ category+"'";
 			}
 			//Query the database
@@ -208,7 +221,8 @@ public class SakilaController {
 		{
 			System.out.println("Exception caught: " + ex.getMessage());
 		}
-		finally {
+		finally
+		{
 			//Close the connection to the db
 			closeConnection();
 		}
@@ -229,7 +243,8 @@ public class SakilaController {
 			//Construct the where statement
 			String conditions="WHERE 1=1";
 
-			if(storeId!=0) {
+			if(storeId!=0)
+			{
 				conditions+=" and store_id="+storeId;
 			}
 			//Query the database
@@ -243,11 +258,13 @@ public class SakilaController {
 					"ORDER BY ? DESC, ? DESC;");
 
 			//If its sorted by income, then order by col 3 (income) then col 4 (rental amount)
-			if(isSortedByIncome) {
+			if(isSortedByIncome) 
+			{
 				statement.setInt(1, 3);
 				statement.setInt(2, 4);
 			}
-			else {
+			else 
+			{
 				//Default to order by rental quantity then income
 				statement.setInt(1, 4);
 				statement.setInt(2, 3);
@@ -264,7 +281,8 @@ public class SakilaController {
 		{
 			System.out.println("Exception caught: " + ex.getMessage());
 		}
-		finally {
+		finally
+		{
 			//Close the connection to the db
 			closeConnection();
 		}
