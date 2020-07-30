@@ -23,7 +23,7 @@ public class SakilaController
 
 	public void createConnection() throws SQLException
 	{
-		if(connection == null)
+		if(connection == null || connection.isClosed())
 		{
 			//Set up connection to Sakila database
 			connection = DriverManager.getConnection(
