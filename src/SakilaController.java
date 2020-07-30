@@ -23,10 +23,13 @@ public class SakilaController
 
 	public void createConnection() throws SQLException
 	{
-		//Set up connection to Sakila database
-		connection = DriverManager.getConnection(
-				"jdbc:mysql://localhost:3306/sakila?useSSL=false&allowPublicKeyRetrieval=true", 
-				"root","password");
+		if(connection == null)
+		{
+			//Set up connection to Sakila database
+			connection = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/sakila?useSSL=false&allowPublicKeyRetrieval=true", 
+					"root","password");
+		}
 	}
 
 	//Tests connection to the database, Should select all actors if it worked
