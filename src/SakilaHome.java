@@ -18,55 +18,61 @@ public class SakilaHome extends JFrame
 	final int WINDOW_WIDTH = 600;
 	final int WINDOW_HEIGHT = 400;
 	SakilaController controller;
-	
+
 	public SakilaHome()
 	{
 		super("Sakila Database");
-		
+
 		//Create database connection
 		this.controller = new SakilaController();
-		
+
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-	 
+
 		//Create JTabbedPane that will hold all windows
 		JTabbedPane tabPane = new JTabbedPane();
 		this.add(tabPane);
-		
+
 		//Add tabs to tab pane
-		
+
 		//Will currently throw an error if clicked back to because it doesn't implement SakilaTab interface
 		tabPane.addTab("test", new JPanel()); //blank pane to test on click listener for switching to add actor
-		
+
 		AddActor addActor = new AddActor(this);
 		tabPane.addTab("Add Actor", new ImageIcon("images/actor.png"), addActor, "Add an actor to the database");
-	
+
+		FilmReport reportFilm = new FilmReport(this);
+		tabPane.addTab("Film Report", new ImageIcon("images/Magnifying Glass.png"), reportFilm, "Get a report from the database");
+		
+		CustomerReport reportCustomer = new CustomerReport(this);
+		tabPane.addTab("Customer Report", new ImageIcon("images/userSilhouette.png"), reportCustomer, "Get a report from the database");
+
 		//Setup change listener for clicking on tabs
-    tabPane.addChangeListener(new TabChangeListener(this, tabPane));
+		tabPane.addChangeListener(new TabChangeListener(this, tabPane));
 
 		this.setVisible(true);
 	}
-	
+
 	private class TabChangeListener implements ChangeListener
 	{
 		SakilaHome home;
 		JTabbedPane tabPane;
-		
+
 		//Constructor
 		public TabChangeListener(SakilaHome home, JTabbedPane tabPane)
 		{
 			this.home = home;
 			this.tabPane = tabPane;
 		}
-		
+
 		public void stateChanged(ChangeEvent e)
 		{
 			//Get selected component, cast as a SakilaTab to gain access to getDimensions
 			SakilaTab tab = (SakilaTab)tabPane.getComponent(tabPane.getSelectedIndex());
-			
+
 			//set tab specific size
-      home.setSize(tab.getDimensions());
+			home.setSize(tab.getDimensions());
 		}
 	}
 
