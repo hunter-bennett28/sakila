@@ -24,7 +24,7 @@ public class FilmReport extends JPanel implements SakilaTab {
 	JTextField txtStartDate,txtEndDate;
 	JButton btnSearch;
 	JTable resultTable;
-	
+
 	public FilmReport(SakilaHome home)
 	{
 		super(new BorderLayout());
@@ -35,7 +35,6 @@ public class FilmReport extends JPanel implements SakilaTab {
 		this.width = 700;
 		this.height = 250;
 		this.setLayout(new BorderLayout());
-
 
 		//Construct window
 		//Place table
@@ -52,9 +51,9 @@ public class FilmReport extends JPanel implements SakilaTab {
 
 		//Fetch list of categories and load them into cbCategory
 		ResultSet rs=home.controller.getCategories();
-		//Check if data was returned
-		Vector<String> categories = new Vector<String>();
 
+		//Check if data was returned and load it into a combo box
+		Vector<String> categories = new Vector<String>();
 		if(!(rs==null)) {
 			try {
 				categories.add("All");
@@ -68,6 +67,7 @@ public class FilmReport extends JPanel implements SakilaTab {
 			}
 		}
 		else {
+			categories.clear();
 			categories.add("Error");
 			System.out.println("Error retrieving categories");
 		}
@@ -79,6 +79,7 @@ public class FilmReport extends JPanel implements SakilaTab {
 		userInputPanel.add(new JLabel("Store #"));
 		rs=home.controller.getStores();
 
+		//Check if data was returned and load it into a combo box
 		Vector<String> stores = new Vector<String>();
 
 		if(!(rs==null)) {
@@ -94,6 +95,7 @@ public class FilmReport extends JPanel implements SakilaTab {
 			}
 		}
 		else {
+			stores.clear();
 			stores.add("Error");
 			System.out.println("Error retrieving categories");
 		}
@@ -103,8 +105,8 @@ public class FilmReport extends JPanel implements SakilaTab {
 		userInputPanel.add(new JLabel("Start Date"));
 		//Set up formatting on the text fields
 		String dateFormat=String.format("dd/mm/yyyy");
-		final int MAX_DATE_LENGTH=10; //
-
+		final int MAX_DATE_LENGTH=10, FIRST_SLASH_INDEX=2, SECOND_SLASH_INDEX=5; //Max char for a date, and the char indexes of when to insert '/'
+		final int BACKSPACE_KEY_CHAR=8; //Used to see if the user pressed backspace
 		//Display date format to start (and if the user leaves it empty)
 		txtStartDate=new JTextField(dateFormat);
 		//Add listener so if focus is lost, it will display the date prompt
@@ -127,8 +129,8 @@ public class FilmReport extends JPanel implements SakilaTab {
 		txtStartDate.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
-				//format the date if it is the correct length and the user is not deleting their date
-				if((txtStartDate.getText().length()==2 || txtStartDate.getText().length()==5) && !(e.getKeyChar()==8))
+				//format the date if it is the correct length and the user is not deleting their date by pressing backspace
+				if((txtStartDate.getText().length()==FIRST_SLASH_INDEX || txtStartDate.getText().length()==SECOND_SLASH_INDEX) && !(e.getKeyChar()==BACKSPACE_KEY_CHAR))
 					txtStartDate.setText(txtStartDate.getText()+'/');
 
 				//Make sure the input value is within the max number of chars 
@@ -158,11 +160,13 @@ public class FilmReport extends JPanel implements SakilaTab {
 				}
 			}
 		});
+
+		//Override the key listener to add in '/' when enough numbers are input
 		txtEndDate.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
-				//format the date if it is the correct length and the user is not deleting their date
-				if((txtEndDate.getText().length()==2 || txtEndDate.getText().length()==5) && !(e.getKeyChar()==8))
+				//format the date if it is the correct length and the user is not deleting their date by pressing backspace
+				if((txtEndDate.getText().length()==FIRST_SLASH_INDEX || txtEndDate.getText().length()==SECOND_SLASH_INDEX) && !(e.getKeyChar()==BACKSPACE_KEY_CHAR))
 					txtEndDate.setText(txtEndDate.getText()+'/');
 
 				//Make sure the input value is within the max number of chars 
@@ -174,7 +178,6 @@ public class FilmReport extends JPanel implements SakilaTab {
 			@Override
 			public void keyReleased(KeyEvent e) { }
 		});
-
 
 		userInputPanel.add(txtStartDate);
 		userInputPanel.add(new JLabel("End Date"));
@@ -207,12 +210,15 @@ public class FilmReport extends JPanel implements SakilaTab {
 				if(!txtStartDate.getText().equals(dateFormat)) {
 					if(txtStartDate.getText().length()!=MAX_DATE_LENGTH) {
 						JOptionPane.showMessageDialog(page, "Incorrect start date entered.");
+						txtStartDate.requestFocus();
 						return;
 					}
 					else {
+						//Split up the date and convert it into a Calendar object
 						String sDate[]=txtStartDate.getText().split("/");
 						int day, month, year;
 						try {
+							//This will see if numbers were input
 							day=Integer.parseInt(sDate[0]);
 							month=Integer.parseInt(sDate[1]);
 							year=Integer.parseInt(sDate[2]);
@@ -221,6 +227,8 @@ public class FilmReport extends JPanel implements SakilaTab {
 							calendar.set(year, month, day);
 
 							//Check to make sure the date wasn't too large (day out of bounds for the month, etc)
+							//If it is, then the calendar automatically accounts for that. For example, if you pass 60 days,
+							//it will count a month and the leftover days which != 60 days
 							if(day!=calendar.get(Calendar.DAY_OF_MONTH)
 									|| month!=calendar.get(Calendar.MONTH)
 									|| year!= calendar.get(Calendar.YEAR)) {
@@ -232,6 +240,7 @@ public class FilmReport extends JPanel implements SakilaTab {
 						}
 						catch(Exception ex) {
 							JOptionPane.showMessageDialog(page, "Start date in incorrect format");
+							txtStartDate.requestFocus();
 							return;
 						}
 					}
@@ -243,12 +252,14 @@ public class FilmReport extends JPanel implements SakilaTab {
 				if(!txtEndDate.getText().equals(dateFormat)) {
 					if(txtEndDate.getText().length()!=MAX_DATE_LENGTH) {
 						JOptionPane.showMessageDialog(page, "Incorrect end date entered.");
+						txtEndDate.requestFocus();
 						return;
 					}
 					else {
 						String eDate[]=txtEndDate.getText().split("/");
 						int day, month, year;
 						try {
+							//Make sure date is integers, then convert it to a calendar
 							day=Integer.parseInt(eDate[0]);
 							month=Integer.parseInt(eDate[1]);
 							year=Integer.parseInt(eDate[2]);
@@ -257,17 +268,18 @@ public class FilmReport extends JPanel implements SakilaTab {
 							calendar.set(year, month, day);
 
 							//Check to make sure the date wasn't too large (day out of bounds for the month, etc)
+							//If it is, then the calendar automatically accounts for that. For example, if you pass 60 days,
+							//it will count a month and the leftover days which != 60 days
 							if(day!=calendar.get(Calendar.DAY_OF_MONTH)
 									|| month!=calendar.get(Calendar.MONTH)
 									|| year!= calendar.get(Calendar.YEAR)) {
 								throw(new Exception());
 							}
 							endDate=calendar.getTime();
-							JOptionPane.showMessageDialog(page, endDate.toString());
-
 						}
 						catch(Exception ex) {
 							JOptionPane.showMessageDialog(page, "End date in incorrect format");
+							txtEndDate.requestFocus();
 							return;
 						}
 					}
@@ -275,15 +287,23 @@ public class FilmReport extends JPanel implements SakilaTab {
 
 				//Call controller with the data
 				ResultSet rs=home.controller.getFilmReport(category, startDate, endDate, storeId);
-				TableModel tm=DbUtils.resultSetToTableModel(rs);
-				resultTable.setModel(tm);
+
+				//Check if it completed successfully
+				if(rs!=null) {
+					TableModel tm=DbUtils.resultSetToTableModel(rs);
+					resultTable.setModel(tm);
+				}
+				else {
+					JOptionPane.showMessageDialog(page, "Error fetching query from the database");
+					return;
+				}
 			}
 		}); //btnSeach ActionListener
 		searchPanel.add(btnSearch,BorderLayout.PAGE_END);
 		this.add(searchPanel, BorderLayout.LINE_START);
 	}
 
-
+	//Return the width and height to the home page
 	@Override
 	public Dimension getDimensions() {
 		return new Dimension(this.width, this.height);

@@ -46,6 +46,7 @@ public class CustomerReport extends JPanel implements SakilaTab {
 		searchPanel=new JPanel(new BorderLayout());
 		searchPanel.add(new JLabel("Browse Customers", JLabel.CENTER), BorderLayout.PAGE_START);
 
+		//Create inner panel for the search panel, it will hold all of the user input for the query
 		userInputPanel=new JPanel(new GridLayout(3,2,10,10));
 
 		//Load store # into combo box
@@ -67,12 +68,15 @@ public class CustomerReport extends JPanel implements SakilaTab {
 			}
 		}
 		else {
+			stores.clear();
 			stores.add("Error");
 			System.out.println("Error retrieving categories");
 		}
+		
 		cbStores=new JComboBox<String>(stores);
 		userInputPanel.add(cbStores);
 
+		//Add in buttons to organize sorting by rental or by income
 		userInputPanel.add(new JLabel("Sort results by:"));
 		userInputPanel.add(new JLabel());
 
@@ -107,8 +111,13 @@ public class CustomerReport extends JPanel implements SakilaTab {
 
 				//Call controller with the data
 				ResultSet rs=home.controller.getCustomerReport(storeId,rbSortByIncome.isSelected());
+				if(rs!=null) {
 				TableModel tm=DbUtils.resultSetToTableModel(rs);
 				resultTable.setModel(tm);
+				}
+				else {
+					JOptionPane.showMessageDialog(page, "Error fetching data from the database");
+				}
 			}
 		}); //btnSeach ActionListener
 		searchPanel.add(btnSearch,BorderLayout.PAGE_END);
