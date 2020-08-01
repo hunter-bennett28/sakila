@@ -31,17 +31,17 @@ public class AddActor extends JPanel implements SakilaTab
 		/* Add Components */
 
 		//First name row
-		this.add(new JLabel("*First Name:", JLabel.RIGHT));
+		this.add(new JLabel("First Name:", JLabel.RIGHT));
 		firstName = new JTextField();
 		this.add(firstName);
 
 		//Last name row
-		this.add(new JLabel("*Last Name:", JLabel.RIGHT));
+		this.add(new JLabel("Last Name:", JLabel.RIGHT));
 		lastName = new JTextField();
 		this.add(lastName);
 
 		//Film row
-		this.add(new JLabel("Film:", JLabel.RIGHT));
+		this.add(new JLabel("(Optional) Film:", JLabel.RIGHT));
 
 		filmsModel = new DefaultComboBoxModel<String>(home.controller.getFilms());
 		films = new JComboBox<String>(filmsModel); //populate films combo box
@@ -49,7 +49,6 @@ public class AddActor extends JPanel implements SakilaTab
 		this.add(films);
 
 		//Button row
-		//this.add(new JLabel("* is required", JLabel.RIGHT));
 		addButton = new JButton("Add Actor");
 		addButton.addActionListener(new ActorListener());
 		this.add(addButton);
@@ -58,6 +57,13 @@ public class AddActor extends JPanel implements SakilaTab
 		refreshButton.addActionListener(new ActionListener()
 		{
 			
+			/**
+			 * Method Name: actionPerformed(ActionEvent e)
+			 * Purpose: Event handler that performs a new query on the films in the database
+			 * 					and updates the combo box
+			 * Accepts: an ActionEvent with the event information
+			 * Returns: Void
+			 */
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
@@ -68,6 +74,7 @@ public class AddActor extends JPanel implements SakilaTab
 		this.add(refreshButton);
 	}
 
+	//Method from SakilaTab to tell TabPane what size this tab wants to be
 	@Override
 	public Dimension getDimensions()
 	{

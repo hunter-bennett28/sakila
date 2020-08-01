@@ -1,6 +1,6 @@
 /**
  * Program Name: AddFilm.java
- * Purpose:
+ * Purpose: GUI Tab for adding a new film to the database
  * Coder: Hunter Bennett
  * Date: Jul 21, 2020		
  */
@@ -8,7 +8,6 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Vector;
 import javax.swing.*;
 
@@ -17,10 +16,9 @@ public class AddFilm extends JPanel implements SakilaTab
 	final int MIN_RENTAL_DURATION = 3;
 	final int MAX_RENTAL_DURATION = 7;
 	
-	JTextField title, description, filmLength, replacementCost, actors, selectedActorsField;
+	JTextField title, description, filmLength, replacementCost;
 	JComboBox<String> releaseYear, language, rentalDuration, rentalRate, rating;
 	JList<String> actorsList, selectedActors;
-	Vector<String> selectedActorsVector;
 	JCheckBox trailers, commentaries, deletedScenes, behindScenes;
 	SakilaHome home;
 	JButton addFilm, addActor, removeActor, resetForm;
