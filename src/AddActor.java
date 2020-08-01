@@ -42,6 +42,7 @@ public class AddActor extends JPanel implements SakilaTab
 
 		//Film row
 		this.add(new JLabel("Film:", JLabel.RIGHT));
+
 		filmsModel = new DefaultComboBoxModel<String>(home.controller.getFilms());
 		films = new JComboBox<String>(filmsModel); //populate films combo box
 		films.setEditable(false);

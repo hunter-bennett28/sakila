@@ -18,7 +18,6 @@ import java.util.Vector;
  * 			methods for selecting and altering data.
  */
 
-
 public class SakilaController
 {
 
@@ -50,9 +49,11 @@ public class SakilaController
 			if(statement!=null) {
 				statement.close();
 			}
+			
 			if(prepStatement!=null) {
 				statement.close();
 			}
+
 			if(connection!=null) {
 				connection.close();
 			}
@@ -82,6 +83,7 @@ public class SakilaController
 			}
 
 			return stores;
+			
 		}
 		catch(SQLException ex)
 		{
@@ -740,15 +742,5 @@ public class SakilaController
 		
 		return errorMessage;
 	}
-	
-	/**
-	 * Method:  addQuoteEscapes(String str)
-	 * Purpose: Escapes any single quotations in string with a second to fit SQL syntax
-	 * Accepts: A string to escape single quotes in
-	 * Returns: The string with any single quotes escaped with a second
-	 */
-	public String addQuoteEscapes(String str)
-	{
-		return str.replace("'", "''");
-	}
+
 }
