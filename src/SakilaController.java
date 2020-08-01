@@ -43,20 +43,17 @@ public class SakilaController
 	{
 		try {
 			//Close it in reverse order
-			if(result!=null) {
+			if(result!=null)
 				result.close();
-			}
-			if(statement!=null) {
-				statement.close();
-			}
 			
-			if(prepStatement!=null) {
+			if(statement!=null)
 				statement.close();
-			}
+			
+			if(prepStatement!=null)
+				statement.close();
 
-			if(connection!=null) {
+			if(connection!=null)
 				connection.close();
-			}
 		} 
 		catch (SQLException ex) {
 			System.out.println("SQL Exception caught while closing database objects: " + ex.getMessage());
@@ -281,12 +278,12 @@ public class SakilaController
 	public int getActorIdByName(String firstName, String lastName)
 	{
 		int id = -1;
+		//Uses new objects because other functions with open objects call this
 		PreparedStatement getIdStatement = null;
 		ResultSet results = null;
 		
 		try
 		{
-			createConnection();
 			//Use new objects because a statement can still be open while calling this
 			getIdStatement = connection.prepareStatement(
 					"SELECT actor_id FROM actor WHERE last_name = ? AND first_name = ?;"
@@ -295,11 +292,6 @@ public class SakilaController
 			getIdStatement.setString(1, lastName);
 			getIdStatement.setString(2, firstName);
 			
-			//Get actor Id, specifying by unique time stamp if possible for duplicates
-//			results = getIdStatement.executeQuery(
-//					"SELECT actor_id FROM actor WHERE last_name = '" + lastName + "' "
-//					+ "AND first_name = '" + firstName + "';"
-//			);
 			results = getIdStatement.executeQuery();
 			
 			//If a value retrieved, get 
@@ -318,10 +310,7 @@ public class SakilaController
 					results.close();
 				
 				if(getIdStatement != null)
-					getIdStatement.close();
-				
-				closeConnection();
-				
+					getIdStatement.close();			
 			} 
 			catch(SQLException ex)
 			{
@@ -345,7 +334,6 @@ public class SakilaController
 		ResultSet results = null;
 		try
 		{
-			createConnection();
 			getIdStatement = connection.prepareStatement("SELECT film_id FROM film WHERE title = ?;");
 			getIdStatement.setString(1, title);
 			results = getIdStatement.executeQuery();
@@ -367,9 +355,6 @@ public class SakilaController
 				
 				if(getIdStatement != null)
 					getIdStatement.close();
-				
-				closeConnection();
-				
 			} 
 			catch(SQLException ex)
 			{
@@ -425,6 +410,7 @@ public class SakilaController
 					//Ensure both ids were correctly found
 					if(actorId != -1 && filmId != -1)
 					{
+						statement = connection.createStatement();
 						//Add to the junction table
 						int addJunctionReturnValue = statement.executeUpdate(
 								"INSERT INTO film_actor VALUES (" + actorId + ", " + filmId + ", '" + lastUpdate +"');"
@@ -467,11 +453,10 @@ public class SakilaController
 		{
 			try
 			{
-				if(prepStatement != null)
-					statement.close();
-				
 				//Turn connection back off "transaction mode"
+				connection.rollback();
 				connection.setAutoCommit(true);
+				closeConnection();
 			}
 			catch (SQLException ex)
 			{
@@ -581,19 +566,17 @@ public class SakilaController
 	public int getLanguageId(String language)
 	{
 		int id = -1;
-		Statement getIdStatement = null;
-		ResultSet results = null;
 		try
 		{
 			createConnection();
-			getIdStatement = connection.createStatement();
-			results = getIdStatement.executeQuery(
+			statement = connection.createStatement();
+			result = statement.executeQuery(
 					"SELECT language_id FROM language WHERE name = '" + language + "';"
 			);
 			
 			//If a value retrieved, get 
-			if(results.next())
-				id = results.getInt(1);
+			if(result.next())
+				id = result.getInt(1);
 		}
 		catch(SQLException ex)
 		{
@@ -601,21 +584,7 @@ public class SakilaController
 		}
 		finally 
 		{
-			try
-			{
-				if(results != null)
-					results.close();
-				
-				if(getIdStatement != null)
-					getIdStatement.close();
-				
-				closeConnection();
-				
-			} 
-			catch(SQLException ex)
-			{
-				System.out.println("SQL Exception caught: " + ex.getMessage());
-			}
+			closeConnection();
 		}
 		
 		return id;
@@ -659,20 +628,6 @@ public class SakilaController
 				prepStatement.setString(prepVariableIndex++, rating);
 				prepStatement.setString(prepVariableIndex++, specialFeatures);
 				prepStatement.setString(prepVariableIndex++, lastUpdate);
-
-//					+ "VALUES ("
-//					+ "'" + addQuoteEscapes(title) + "', " 
-//					+ "'" + addQuoteEscapes(description) + "', "
-//					+ releaseYear + ", "
-//					+ languageId + ", "
-//					+ rentalDuration + ", "
-//					+ rentalRate + ", "
-//					+ length + ", "
-//					+ replacementCost + ", "
-//					+ "'" + rating + "', "
-//					+ "'" + specialFeatures + "', "
-//					+ "'" + lastUpdate + "');";
-				
 				
 				int addFilmReturnValue = prepStatement.executeUpdate();
 				
