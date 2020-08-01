@@ -79,7 +79,7 @@ public class SakilaController
 			Vector<String> stores=new Vector<String>();
 			while(result.next()) 
 			{
-				stores.add(result.getString("name"));
+				stores.add(result.getString("store_id"));
 			}
 
 			return stores;

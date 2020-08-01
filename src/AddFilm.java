@@ -29,6 +29,7 @@ public class AddFilm extends JPanel implements SakilaTab
 	
 	public AddFilm(SakilaHome home)
 	{
+		//Boiler plate
 		super(new GridLayout(1, 2, 10, 10));
 		this.home = home;
 		this.width = home.WINDOW_WIDTH + 200;
@@ -115,7 +116,7 @@ public class AddFilm extends JPanel implements SakilaTab
 		actorsScrollPane = new JScrollPane(selectedActors);
 		rightPanel.add(actorsScrollPane);
 		
-		//Actor Row
+		//Actor Buttons Row
 		addActor = new JButton("Add Actor");
 		addActor.addActionListener(new ActionListener()
 		{
@@ -177,10 +178,15 @@ public class AddFilm extends JPanel implements SakilaTab
 		resetForm.addActionListener(new ActionListener()
 		{
 			
+			/**
+			 * Method Name: actionPerformed(ActionEvent e)
+			 * Purpose: Event handler that resets all forms to their default state
+			 * Accepts: an ActionEvent with the event information
+			 * Returns: Void
+			 */
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				//Clear all fields and reset combo boxes and check boxes to default
 				title.setText("");
 				description.setText("");
 				releaseYear.setSelectedIndex(0);
@@ -226,7 +232,6 @@ public class AddFilm extends JPanel implements SakilaTab
 		
 		//Create combo box containing vector and return
 		JComboBox<String> completedBox = new JComboBox<String>(validYears);
-//		completedBox.setSelectedIndex(validYears.size() - 1);
 		
 		return completedBox;
 	}
@@ -304,7 +309,7 @@ public class AddFilm extends JPanel implements SakilaTab
 
 		/**
 		 * Method:  actionPerformed(ActionEvent e)
-		 * Purpose: Event handler for the add film button. It will retireve and validate user
+		 * Purpose: Event handler for the add film button. It will retrieve and validate user
 		 * 					input for all fields, and if valid, attempt to add the film to the database.
 		 * Accepts: Nothing
 		 * Returns: Dimension object containing desired tab size
@@ -487,7 +492,5 @@ public class AddFilm extends JPanel implements SakilaTab
 			
 			return formattedString;
 		}
-		
 	}
-
 }
