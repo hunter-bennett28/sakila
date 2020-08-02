@@ -123,9 +123,7 @@ public class SakilaController
 					"FROM category;");
 
 			//Load into vector
-			Vector<String> categories=new Vector<String>();
-			categories.add("All");
-			
+			Vector<String> categories=new Vector<String>();			
 			while(result.next()) 
 			{
 				categories.add(result.getString("name"));

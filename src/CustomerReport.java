@@ -46,7 +46,7 @@ public class CustomerReport extends JPanel implements SakilaTab {
 		//Load store # into combo box
 		userInputPanel.add(new JLabel("Store #"));
 		Vector<String> stores = home.controller.getStores();
-
+		stores.add(0,"All");
 		cbStores=new JComboBox<String>(stores);
 		userInputPanel.add(cbStores);
 

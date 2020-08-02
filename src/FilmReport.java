@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Vector;
 
 
@@ -53,6 +54,7 @@ public class FilmReport extends JPanel implements SakilaTab {
 
 		//Fetch list of categories and load them into cbCategory
 		Vector<String> categories=home.controller.getCategories();
+		categories.add(0,"All");
 		cbCategory=new JComboBox<String>(categories);
 		userInputPanel.add(cbCategory);
 
@@ -62,6 +64,7 @@ public class FilmReport extends JPanel implements SakilaTab {
 
 		//Check if data was returned and load it into a combo box
 		Vector<String> stores = home.controller.getStores();
+		stores.add(0,"All"); //Add an all option
 		cbStores=new JComboBox<String>(stores);
 		userInputPanel.add(cbStores);
 
@@ -193,19 +196,10 @@ public class FilmReport extends JPanel implements SakilaTab {
 						month=Integer.parseInt(sDate[1]);
 						year=Integer.parseInt(sDate[2]);
 
-						Calendar calendar= Calendar.getInstance();
-						calendar.set(year, month, day);
+						Calendar calendar= new GregorianCalendar(year,month-1,day); //Month is zero based
 
-						//Check to make sure the date wasn't too large (day out of bounds for the month, etc)
-						//If it is, then the calendar automatically accounts for that. For example, if you pass 60 days,
-						//it will count a month and the leftover days which != 60 days
-						if(day!=calendar.get(Calendar.DAY_OF_MONTH)
-								|| month!=calendar.get(Calendar.MONTH)
-								|| year!= calendar.get(Calendar.YEAR)) {
-							throw(new Exception());
-						}
+						calendar.setLenient(false); //If a date is out of bounds, it will throw an exception
 						startDate=calendar.getTime();
-						JOptionPane.showMessageDialog(page, startDate.toString());
 
 					}
 					catch(Exception ex) {
@@ -234,17 +228,9 @@ public class FilmReport extends JPanel implements SakilaTab {
 						month=Integer.parseInt(eDate[1]);
 						year=Integer.parseInt(eDate[2]);
 
-						Calendar calendar= Calendar.getInstance();
-						calendar.set(year, month, day);
+						Calendar calendar= new GregorianCalendar(year,month-1,day); //Month is zero based
 
-						//Check to make sure the date wasn't too large (day out of bounds for the month, etc)
-						//If it is, then the calendar automatically accounts for that. For example, if you pass 60 days,
-						//it will count a month and the leftover days which != 60 days
-						if(day!=calendar.get(Calendar.DAY_OF_MONTH)
-								|| month!=calendar.get(Calendar.MONTH)
-								|| year!= calendar.get(Calendar.YEAR)) {
-							throw(new Exception());
-						}
+						calendar.setLenient(false); //If a date is out of bounds, it will throw an exception
 						endDate=calendar.getTime();
 					}
 					catch(Exception ex) {
