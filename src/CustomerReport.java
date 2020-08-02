@@ -8,8 +8,6 @@ import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Vector;
 
 
@@ -99,7 +97,6 @@ public class CustomerReport extends JPanel implements SakilaTab {
 		searchPanel.add(btnSearch,BorderLayout.PAGE_END);
 		this.add(searchPanel, BorderLayout.LINE_START);
 	}
-
 
 	@Override
 	public Dimension getDimensions() {

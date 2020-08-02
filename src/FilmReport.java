@@ -8,7 +8,6 @@ import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.ResultSet;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
