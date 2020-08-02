@@ -8,8 +8,6 @@ import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
@@ -24,7 +22,7 @@ public class CustomerReport extends JPanel implements SakilaTab {
 	JRadioButton rbSortByRental, rbSortByIncome;
 	JButton btnSearch;
 	JTable resultTable;
-	
+
 	public CustomerReport(SakilaHome home)
 	{
 		super(new BorderLayout());
@@ -50,7 +48,7 @@ public class CustomerReport extends JPanel implements SakilaTab {
 		//Load store # into combo box
 		userInputPanel.add(new JLabel("Store #"));
 		Vector<String> stores = home.controller.getStores();
-		
+
 		cbStores=new JComboBox<String>(stores);
 		userInputPanel.add(cbStores);
 
@@ -60,14 +58,14 @@ public class CustomerReport extends JPanel implements SakilaTab {
 
 		rbSortByRental=new JRadioButton("Rental");
 		rbSortByIncome=new JRadioButton("Income");
-		
+
 		ButtonGroup bgSortResultsBy=new ButtonGroup();
 		bgSortResultsBy.add(rbSortByRental);
 		bgSortResultsBy.add(rbSortByIncome);
 
 		//Set rental to be by default
 		rbSortByRental.setSelected(true);
-		
+
 		userInputPanel.add(rbSortByRental);
 		userInputPanel.add(rbSortByIncome);
 		searchPanel.add(userInputPanel);
@@ -80,7 +78,7 @@ public class CustomerReport extends JPanel implements SakilaTab {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				String store=cbStores.getSelectedItem().toString();
 				int storeId=0;
 				if(!store.equals("All")) {
@@ -88,10 +86,10 @@ public class CustomerReport extends JPanel implements SakilaTab {
 				}
 
 				//Call controller with the data
-				ResultSet rs=home.controller.getCustomerReport(storeId,rbSortByIncome.isSelected());
-				if(rs!=null) {
-				TableModel tm=DbUtils.resultSetToTableModel(rs);
-				resultTable.setModel(tm);
+				TableModel tm=home.controller.getCustomerReport(storeId,rbSortByIncome.isSelected());
+				
+				if(tm!=null) {
+					resultTable.setModel(tm);
 				}
 				else {
 					JOptionPane.showMessageDialog(page, "Error fetching data from the database");
