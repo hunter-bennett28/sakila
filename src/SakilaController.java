@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Vector;
 
+import javax.swing.table.TableModel;
+
 /**
  * Name: SakilaController.java
  * Author: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
@@ -60,7 +62,12 @@ public class SakilaController
 		}
 	}
 	
-	//Returns the id value (store #) for every store in the database
+	/**
+	 * Method Name: getStores()
+	 * Purpose: Retrieves a vector of all the stores
+	 * Accepts: No params
+	 * Returns: A vector of strings holding all the store_id fields in the store table
+	 */	
 	public Vector<String> getStores()
 	{
 		try 
@@ -98,7 +105,12 @@ public class SakilaController
 		return null;
 	}
 
-	//Returns all categories in the Sakila Database
+	/**
+	 * Method Name: getCategories()
+	 * Purpose: Retrieves a vector of all the movie categories
+	 * Accepts: No params
+	 * Returns: A vector of strings holding all the categories in the category table
+	 */	
 	public Vector<String> getCategories()
 	{
 		try 
@@ -111,9 +123,7 @@ public class SakilaController
 					"FROM category;");
 
 			//Load into vector
-			Vector<String> categories=new Vector<String>();
-			categories.add("All");
-			
+			Vector<String> categories=new Vector<String>();			
 			while(result.next()) 
 			{
 				categories.add(result.getString("name"));
@@ -136,10 +146,16 @@ public class SakilaController
 		return null;
 	}
 
-	/*This gets a report based on the criteria passed, searches both dates inclusively
-	 * If a field is left null then it will not be queried (and storeId=0)
+	/**
+	 * Method Name: getFilmReport()
+	 * Purpose: Retrieves data based on the films in inventory, most importantly how many times they were rented and how much money they make
+	 * Accepts: string - category name
+	 * 			date - the initial date that will be inclusively checked (starting at 00:00:00 UTC)
+	 * 			date - the end date to be inclusively checked
+	 * 			int - the store id represented in the database, if 0 is passed, all stores will be queried
+	 * Returns: A table model representing the data returned from the query
 	 */
-	public ResultSet getFilmReport(String category, Date startDate, Date endDate, int storeId)
+	public TableModel getFilmReport(String category, Date startDate, Date endDate, int storeId)
 	{
 		try
 		{
@@ -190,7 +206,7 @@ public class SakilaController
 					"GROUP BY title\r\n" + 
 					"ORDER BY 4 DESC, 3 DESC;"
 					);
-			return result;
+			return DbUtils.resultSetToTableModel(result);
 		}
 		catch(SQLException ex)
 		{
@@ -209,10 +225,13 @@ public class SakilaController
 		return null;
 	}
 
-	/*This gets a report on users based on how much income they generated or films they have rented
-	 * Default sorts by rental
+	/**
+	 * Method Name: getCustomerReport()
+	 * Purpose: Retrieves data based on the store the user is active with and will sort it appropriately
+	 * Accepts: int, bool (represents how the data is sorted, default is by rental amount)
+	 * Returns: A table model representing the data returned from the query
 	 */
-	public ResultSet getCustomerReport(int storeId, boolean isSortedByIncome)
+	public TableModel getCustomerReport(int storeId, boolean isSortedByIncome)
 	{
 		try
 		{
@@ -250,7 +269,7 @@ public class SakilaController
 			}
 
 			result = statement.executeQuery();
-			return result;
+			return DbUtils.resultSetToTableModel(result);
 		}
 		catch(SQLException ex)
 		{
