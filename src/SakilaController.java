@@ -6,26 +6,26 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Vector;
 
 /**
  * Name: SakilaController.java
- * Author: Connor Black
+ * Author: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
  * Date: Jul. 17, 2020
  * Desc: This is the controller that interacts with the Sakila database for various
  * 			methods for selecting and altering data.
  */
 
-public class SakilaController 
+public class SakilaController
 {
 
 	//Connection Objects
 	Connection connection = null;
 	Statement statement = null;
 	ResultSet result = null;
-	//This is the controller that will interact with the database
-	//Set up the calls you will need to make to the database
+	PreparedStatement prepStatement = null;
 
 	public void createConnection() throws SQLException
 	{
@@ -43,57 +43,23 @@ public class SakilaController
 	{
 		try {
 			//Close it in reverse order
-			if(result!=null) {
+			if(result!=null)
 				result.close();
-			}
-			if(statement!=null) {
+			
+			if(statement!=null)
 				statement.close();
-			}
-			if(connection!=null) {
+			
+			if(prepStatement!=null)
+				statement.close();
+
+			if(connection!=null)
 				connection.close();
-			}
 		} 
 		catch (SQLException ex) {
 			System.out.println("SQL Exception caught while closing database objects: " + ex.getMessage());
 		}
 	}
-
-	public boolean addActor(String firstName, String lastName)
-	{
-		try
-		{
-			//Establish a connection to the db
-			createConnection();
-
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
-			Date date = new Date();
-			String lastUpdate = sdf.format(date.getTime());
-
-			statement = connection.createStatement();
-			int returnValue = statement.executeUpdate(
-					"INSERT INTO actor (first_name, last_name, last_update)" +
-							"VALUES ('" + firstName + "', '" + lastName + "', '" + lastUpdate + "');"
-					);
-
-			if(returnValue == 1)
-				return true;
-		}
-		catch(SQLException ex)
-		{
-			System.out.println("SQL Exception caught: " + ex.getMessage());
-		}
-		catch(Exception ex)
-		{
-			System.out.println("Exception caught: " + ex.getMessage());
-		}
-		finally 
-		{
-			//Close the connection to the db
-			closeConnection();
-		}
-		return false;
-	}
-
+	
 	//Returns the id value (store #) for every store in the database
 	public Vector<String> getStores()
 	{
@@ -110,10 +76,11 @@ public class SakilaController
 			Vector<String> stores=new Vector<String>();
 			while(result.next()) 
 			{
-				stores.add(result.getString("name"));
+				stores.add(result.getString("store_id"));
 			}
 
 			return stores;
+			
 		}
 		catch(SQLException ex)
 		{
@@ -311,19 +278,21 @@ public class SakilaController
 	public int getActorIdByName(String firstName, String lastName)
 	{
 		int id = -1;
-		Statement getIdStatement = null;
+		//Uses new objects because other functions with open objects call this
+		PreparedStatement getIdStatement = null;
 		ResultSet results = null;
 		
 		try
 		{
 			//Use new objects because a statement can still be open while calling this
-			getIdStatement = connection.createStatement();
-			
-			//Get actor Id, specifying by unique time stamp if possible for duplicates
-			results = getIdStatement.executeQuery(
-					"SELECT actor_id FROM actor WHERE last_name = '" + lastName + "' "
-					+ "AND first_name = '" + firstName + "';"
+			getIdStatement = connection.prepareStatement(
+					"SELECT actor_id FROM actor WHERE last_name = ? AND first_name = ?;"
 			);
+			
+			getIdStatement.setString(1, lastName);
+			getIdStatement.setString(2, firstName);
+			
+			results = getIdStatement.executeQuery();
 			
 			//If a value retrieved, get 
 			if(results.next())
@@ -341,8 +310,7 @@ public class SakilaController
 					results.close();
 				
 				if(getIdStatement != null)
-					getIdStatement.close();
-				
+					getIdStatement.close();			
 			} 
 			catch(SQLException ex)
 			{
@@ -362,14 +330,13 @@ public class SakilaController
 	public int getFilmIdByTitle(String title)
 	{
 		int id = -1;
-		Statement getIdStatement = null;
+		PreparedStatement getIdStatement = null;
 		ResultSet results = null;
 		try
 		{
-			getIdStatement = connection.createStatement();
-			results = getIdStatement.executeQuery(
-					"SELECT film_id FROM film WHERE title = '" + title + "';"
-			);
+			getIdStatement = connection.prepareStatement("SELECT film_id FROM film WHERE title = ?;");
+			getIdStatement.setString(1, title);
+			results = getIdStatement.executeQuery();
 			
 			//If a value retrieved, get 
 			if(results.next())
@@ -388,7 +355,6 @@ public class SakilaController
 				
 				if(getIdStatement != null)
 					getIdStatement.close();
-				
 			} 
 			catch(SQLException ex)
 			{
@@ -424,11 +390,15 @@ public class SakilaController
 				connection.setAutoCommit(false);
 				
 				//Add the actor to the database
-				statement = connection.createStatement();
-				int addActorReturnValue = statement.executeUpdate(
-					"INSERT INTO actor (first_name, last_name, last_update)" +
-					"VALUES ('" + firstName + "', '" + lastName + "', '" + lastUpdate + "');"
+				prepStatement = connection.prepareStatement(
+						"INSERT INTO actor (first_name, last_name, last_update) VALUES (?, ?, ?);"
 				);
+				
+				prepStatement.setString(1, firstName);
+				prepStatement.setString(2, lastName);
+				prepStatement.setString(3, lastUpdate);
+				
+				int addActorReturnValue = prepStatement.executeUpdate();
 				
 				//If a movie title provided, and the actor insert worked, add to the junction table
 				if(movieTitle.length() > 0 && addActorReturnValue > 0)
@@ -440,6 +410,7 @@ public class SakilaController
 					//Ensure both ids were correctly found
 					if(actorId != -1 && filmId != -1)
 					{
+						statement = connection.createStatement();
 						//Add to the junction table
 						int addJunctionReturnValue = statement.executeUpdate(
 								"INSERT INTO film_actor VALUES (" + actorId + ", " + filmId + ", '" + lastUpdate +"');"
@@ -480,7 +451,17 @@ public class SakilaController
 		}
 		finally
 		{
-			closeConnection();
+			try
+			{
+				//Turn connection back off "transaction mode"
+				connection.rollback();
+				connection.setAutoCommit(true);
+				closeConnection();
+			}
+			catch (SQLException ex)
+			{
+				errorMessage += " SQL Exception: " + ex.getMessage();
+			}
 		}
 		
 		return errorMessage;
@@ -501,11 +482,13 @@ public class SakilaController
 		{
 			createConnection();
 			statement = connection.createStatement();
+			
+			//Select all titles
 			result = statement.executeQuery("SELECT title FROM film");
 
 			while(result.next())
 			{
-				//Add a new pair to films with the ID and title
+				//Add title to the vector
 				allFilms.add(result.getString(1));
 			}
 
@@ -522,4 +505,235 @@ public class SakilaController
 
 		return allFilms;
 	}
+		
+	/**
+	 * Method Name: getLanguages()
+	 * Purpose: Retrieves a list of all languages in the database
+	 * Accepts: Nothing
+	 * Returns: A String Vector of all languages found
+	 */
+	public Vector<String> getLanguages()
+	{
+			Vector<String> languages = new Vector<String>();
+			try
+			{
+				createConnection();
+				statement = connection.createStatement();
+				result = statement.executeQuery("SELECT name FROM language;");
+
+				while(result.next())
+				{
+					//Add language name to the vector
+					languages.add(result.getString(1));
+				}
+
+				return languages;
+			}
+			catch (SQLException ex)
+			{
+				System.out.println("SQL Exception caught: " + ex.getMessage());
+			}
+			finally
+			{
+				closeConnection();
+			}
+
+			return languages;
+	}
+	
+	/**
+	 * Method Name: getActors()
+	 * Purpose: Retrieves a list of all actors in the database
+	 * Accepts: Nothing
+	 * Returns: A String Vector of actors found in 'lastName, firstName' format
+	 */
+	public Vector<String> getActors()
+	{
+		Vector<String> actors = new Vector<String>();
+		try
+		{
+			createConnection();
+			statement = connection.createStatement();
+			result = statement.executeQuery("SELECT last_name, first_name FROM actor;");
+
+			while(result.next())
+			{
+				//Add actor to vector in lastName, firstName format
+				actors.add(result.getString(1) + ", " + result.getString(2));
+			}
+
+			//Sort on last name
+			Collections.sort(actors);
+			return actors;
+		}
+		catch (SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		finally
+		{
+			closeConnection();
+		}
+
+		return actors;
+	}
+	
+	/**
+	 * Method Name: getLanguageId(String language)
+	 * Purpose: Retrieves the id of the given language from the database
+	 * Accepts: a String name of a language
+	 * Returns: the integer Id or -1 if not found
+	 */
+	public int getLanguageId(String language)
+	{
+		int id = -1;
+		try
+		{
+			createConnection();
+			statement = connection.createStatement();
+			result = statement.executeQuery(
+					"SELECT language_id FROM language WHERE name = '" + language + "';"
+			);
+			
+			//If a value retrieved, get 
+			if(result.next())
+				id = result.getInt(1);
+		}
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		finally 
+		{
+			closeConnection();
+		}
+		
+		return id;
+	}
+
+	/**
+	 * Method Name: addFilm()
+	 * Purpose: Adds a film to the database as well as the connections between it and its actors
+	 * Accepts: title - the title of the movie
+	 * 					description - a brief description of the movie
+	 * 					releaseYear - the year it was released
+	 * 					languageId  - the ID of the language the movie is in
+	 * 					rentalDuration - the days between 3 and 7 the movie is rentable for
+	 * 					rentalRate  - the monetary cost of renting the movie
+	 * 					length 			- the length in minutes of the movie
+	 * 					replacementCost - the cost of replacing the movie if lost/damaged
+	 * 					rating			- the rating of the movie in enum(G, PG, PG-13, R, NC-17)
+	 * 					specialFeatures - a comma separated list of special features
+	 * 					actors			- an array of all actors in the film in 'lastName, firstName' format
+	 * Returns: A String description of how the insert went
+	 */
+	public String addFilm(String title, String description, int releaseYear,
+			int languageId, int rentalDuration, double rentalRate, int length,
+			double replacementCost, String rating, String specialFeatures, String[] actors)
+	{
+		String errorMessage = "Film not added.";
+		try
+		{
+			createConnection();
+			//Check to see if film already exists in the database before adding
+			if(getFilmIdByTitle(title) == -1) //if it doesn't exist, add it
+			{
+				//Get formatted date for update field
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
+				Date date = new Date();
+				String lastUpdate = sdf.format(date.getTime());
+				
+				//Begin transaction
+				connection.setAutoCommit(false);
+				
+				//Create and populate prepared statement
+				String sqlFilmInsert = 
+						"INSERT INTO film (title, description, release_year, language_id, rental_duration, rental_rate, "
+						+ "length, replacement_cost, rating, special_features, last_update) "
+						+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+				prepStatement = connection.prepareStatement(sqlFilmInsert);
+				
+				int prepVariableIndex = 1;
+				prepStatement.setString(prepVariableIndex++,  title);
+				prepStatement.setString(prepVariableIndex++,  description);
+				prepStatement.setInt(prepVariableIndex++,  releaseYear);
+				prepStatement.setInt(prepVariableIndex++, languageId);
+				prepStatement.setInt(prepVariableIndex++, rentalDuration);
+				prepStatement.setDouble(prepVariableIndex++, rentalRate);
+				prepStatement.setInt(prepVariableIndex++, length);
+				prepStatement.setDouble(prepVariableIndex++, replacementCost);
+				prepStatement.setString(prepVariableIndex++, rating);
+				prepStatement.setString(prepVariableIndex++, specialFeatures);
+				prepStatement.setString(prepVariableIndex++, lastUpdate);
+				
+				int addFilmReturnValue = prepStatement.executeUpdate();
+				
+				//If film insert worked, add to the junction table
+				if(addFilmReturnValue > 0)
+				{
+					int filmId = getFilmIdByTitle(title);
+					boolean allJunctionInsertsWorked = true;
+					//Add all selected actors to junction table
+					for (int i = 0; i < actors.length; i++)
+					{
+						int commaIndex = actors[i].indexOf(',');
+						String firstName = actors[i].substring(commaIndex + 2);
+						String lastName = actors[i].substring(0, commaIndex);
+						
+						int actorId = getActorIdByName(firstName, lastName);
+						if(actorId == -1)
+						{
+							return "Film not added, actor " + firstName + " " + lastName + " does not exist.";
+						}
+						
+						statement = connection.createStatement();
+						String sqlString = "INSERT INTO film_actor VALUES (" + actorId + ", " + filmId + ", '" + lastUpdate + "');";
+						int addJunctionReturnValue = statement.executeUpdate(sqlString);
+						
+						if(addJunctionReturnValue == -1)
+							allJunctionInsertsWorked = false;
+					}
+					
+					//Ensure all adds worked correctly
+					if(allJunctionInsertsWorked)
+					{
+						connection.commit();
+						return "Film added successfully!";
+					}
+				}
+			}
+			else //Actor already existed in database so it was not added
+			{
+				return "Film already exists in the database.";
+			}
+			
+		}
+		catch(SQLException ex)
+		{
+			errorMessage += " SQL Exception: " + ex.getMessage();
+		}
+		catch(Exception ex)
+		{
+			errorMessage += " Exception: " + ex.getMessage();
+	
+		}
+		finally
+		{
+			try
+			{
+				//Do a roll back in case it failed. If it didn't, will not undo the commit
+				connection.rollback();
+				//Turn connection back off "transaction mode"
+				connection.setAutoCommit(true);
+				closeConnection();
+			}
+			catch (SQLException ex)
+			{
+				errorMessage += " SQL Exception: " + ex.getMessage();
+			}
+		}
+		
+		return errorMessage;
+	}
+
 }
