@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Vector;
 
+import javax.swing.table.TableModel;
+
 /**
  * Name: SakilaController.java
  * Author: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
@@ -59,8 +61,54 @@ public class SakilaController
 			System.out.println("SQL Exception caught while closing database objects: " + ex.getMessage());
 		}
 	}
+<<<<<<< Upstream, based on origin/master
 	
 	//Returns the id value (store #) for every store in the database
+=======
+
+	public boolean addActor(String firstName, String lastName)
+	{
+		try
+		{
+			//Establish a connection to the db
+			createConnection();
+
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
+			Date date = new Date();
+			String lastUpdate = sdf.format(date.getTime());
+
+			statement = connection.createStatement();
+			int returnValue = statement.executeUpdate(
+					"INSERT INTO actor (first_name, last_name, last_update)" +
+							"VALUES ('" + firstName + "', '" + lastName + "', '" + lastUpdate + "');"
+					);
+
+			if(returnValue == 1)
+				return true;
+		}
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Exception caught: " + ex.getMessage());
+		}
+		finally 
+		{
+			//Close the connection to the db
+			closeConnection();
+		}
+		return false;
+	}
+
+	/**
+	 * Method Name: getStores()
+	 * Purpose: Retrieves a vector of all the stores
+	 * Accepts: No params
+	 * Returns: A vector of strings holding all the store_id fields in the store table
+	 */	
+>>>>>>> 8eb9972 Standardized comments on methods and fixed bug with getStores
 	public Vector<String> getStores()
 	{
 		try 
@@ -98,7 +146,12 @@ public class SakilaController
 		return null;
 	}
 
-	//Returns all categories in the Sakila Database
+	/**
+	 * Method Name: getCategories()
+	 * Purpose: Retrieves a vector of all the movie categories
+	 * Accepts: No params
+	 * Returns: A vector of strings holding all the categories in the category table
+	 */	
 	public Vector<String> getCategories()
 	{
 		try 
@@ -136,10 +189,16 @@ public class SakilaController
 		return null;
 	}
 
-	/*This gets a report based on the criteria passed, searches both dates inclusively
-	 * If a field is left null then it will not be queried (and storeId=0)
+	/**
+	 * Method Name: getFilmReport()
+	 * Purpose: Retrieves data based on the films in inventory, most importantly how many times they were rented and how much money they make
+	 * Accepts: string - category name
+	 * 			date - the initial date that will be inclusively checked (starting at 00:00:00 UTC)
+	 * 			date - the end date to be inclusively checked
+	 * 			int - the store id represented in the database, if 0 is passed, all stores will be queried
+	 * Returns: A table model representing the data returned from the query
 	 */
-	public ResultSet getFilmReport(String category, Date startDate, Date endDate, int storeId)
+	public TableModel getFilmReport(String category, Date startDate, Date endDate, int storeId)
 	{
 		try
 		{
@@ -190,7 +249,7 @@ public class SakilaController
 					"GROUP BY title\r\n" + 
 					"ORDER BY 4 DESC, 3 DESC;"
 					);
-			return result;
+			return DbUtils.resultSetToTableModel(result);
 		}
 		catch(SQLException ex)
 		{
@@ -209,10 +268,13 @@ public class SakilaController
 		return null;
 	}
 
-	/*This gets a report on users based on how much income they generated or films they have rented
-	 * Default sorts by rental
+	/**
+	 * Method Name: getCustomerReport()
+	 * Purpose: Retrieves data based on the store the user is active with and will sort it appropriately
+	 * Accepts: int, bool (represents how the data is sorted, default is by rental amount)
+	 * Returns: A table model representing the data returned from the query
 	 */
-	public ResultSet getCustomerReport(int storeId, boolean isSortedByIncome)
+	public TableModel getCustomerReport(int storeId, boolean isSortedByIncome)
 	{
 		try
 		{
@@ -250,7 +312,7 @@ public class SakilaController
 			}
 
 			result = statement.executeQuery();
-			return result;
+			return DbUtils.resultSetToTableModel(result);
 		}
 		catch(SQLException ex)
 		{
