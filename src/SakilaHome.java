@@ -37,8 +37,8 @@ public class SakilaHome extends JFrame
 		
 		/* Add tabs to tab pane */
 
-		//Will currently throw an error if clicked back to because it doesn't implement SakilaTab interface
-		tabPane.addTab("test", new JPanel()); //blank pane to test on click listener for switching to add actor
+		HomeTab homeTab = new HomeTab();
+		tabPane.addTab("Home", new ImageIcon("images/home.png"), homeTab, "Home"); //blank pane to test on click listener for switching to add actor
 
 		AddActor addActor = new AddActor(this);
 		tabPane.addTab("Add Actor", new ImageIcon("images/actor.png"), addActor, "Add an actor to the database");
@@ -83,5 +83,53 @@ public class SakilaHome extends JFrame
 	public static void main(String[] args)
 	{
 		new SakilaHome();
+	}
+	
+	//Private inner class for setting up a simple introductory home tab
+	private class HomeTab extends JPanel implements SakilaTab
+	{
+		public HomeTab()
+		{
+			super(new BorderLayout());
+			
+			//Add image to panel
+			JLabel filmPicture = new JLabel(new ImageIcon("images/film.png"));
+			this.add(filmPicture, BorderLayout.CENTER);
+			
+			//Add title panel with black background and white text
+			JPanel titlePanel = new JPanel();
+			titlePanel.setBackground(Color.BLACK);
+			
+			//Create the title text with custom font and colour
+			JLabel welcome = new JLabel("Welcome to the Sakila Rental App", JLabel.CENTER);
+			Font welcomeFont = new Font("Serif", Font.BOLD, 32);
+			welcome.setFont(welcomeFont);
+			welcome.setForeground(Color.WHITE);
+
+			//Add to panel then to master
+			titlePanel.add(welcome);
+			this.add(titlePanel, BorderLayout.NORTH);
+			
+			//Create footer panel that explains usage
+			JPanel footerPanel = new JPanel();
+			footerPanel.setBackground(Color.BLACK);
+			
+			JLabel footer = new JLabel("Please Select Above Tabs To Begin");
+			Font fontFooter = new Font("Serif", Font.ITALIC, 24);
+			footer.setFont(fontFooter);
+			footer.setForeground(Color.WHITE);
+			
+			//Add to panel then to master
+			footerPanel.add(footer);	
+			this.add(footerPanel, BorderLayout.SOUTH);
+		}
+
+		//Method from SakilaTab to tell TabPane what size this tab wants to be
+		@Override
+		public Dimension getDimensions()
+		{
+			return new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT);
+		}
+		
 	}
 }

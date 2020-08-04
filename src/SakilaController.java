@@ -482,11 +482,13 @@ public class SakilaController
 		{
 			createConnection();
 			statement = connection.createStatement();
+			
+			//Select all titles
 			result = statement.executeQuery("SELECT title FROM film");
 
 			while(result.next())
 			{
-				//Add a new pair to films with the ID and title
+				//Add title to the vector
 				allFilms.add(result.getString(1));
 			}
 
@@ -504,6 +506,12 @@ public class SakilaController
 		return allFilms;
 	}
 		
+	/**
+	 * Method Name: getLanguages()
+	 * Purpose: Retrieves a list of all languages in the database
+	 * Accepts: Nothing
+	 * Returns: A String Vector of all languages found
+	 */
 	public Vector<String> getLanguages()
 	{
 			Vector<String> languages = new Vector<String>();
@@ -515,7 +523,7 @@ public class SakilaController
 
 				while(result.next())
 				{
-					//Add a new pair to films with the ID and title
+					//Add language name to the vector
 					languages.add(result.getString(1));
 				}
 
@@ -533,6 +541,12 @@ public class SakilaController
 			return languages;
 	}
 	
+	/**
+	 * Method Name: getActors()
+	 * Purpose: Retrieves a list of all actors in the database
+	 * Accepts: Nothing
+	 * Returns: A String Vector of actors found in 'lastName, firstName' format
+	 */
 	public Vector<String> getActors()
 	{
 		Vector<String> actors = new Vector<String>();
@@ -544,10 +558,11 @@ public class SakilaController
 
 			while(result.next())
 			{
-				//Add a new pair to films with the ID and title
+				//Add actor to vector in lastName, firstName format
 				actors.add(result.getString(1) + ", " + result.getString(2));
 			}
 
+			//Sort on last name
 			Collections.sort(actors);
 			return actors;
 		}
@@ -563,6 +578,12 @@ public class SakilaController
 		return actors;
 	}
 	
+	/**
+	 * Method Name: getLanguageId(String language)
+	 * Purpose: Retrieves the id of the given language from the database
+	 * Accepts: a String name of a language
+	 * Returns: the integer Id or -1 if not found
+	 */
 	public int getLanguageId(String language)
 	{
 		int id = -1;
@@ -590,6 +611,22 @@ public class SakilaController
 		return id;
 	}
 
+	/**
+	 * Method Name: addFilm()
+	 * Purpose: Adds a film to the database as well as the connections between it and its actors
+	 * Accepts: title - the title of the movie
+	 * 					description - a brief description of the movie
+	 * 					releaseYear - the year it was released
+	 * 					languageId  - the ID of the language the movie is in
+	 * 					rentalDuration - the days between 3 and 7 the movie is rentable for
+	 * 					rentalRate  - the monetary cost of renting the movie
+	 * 					length 			- the length in minutes of the movie
+	 * 					replacementCost - the cost of replacing the movie if lost/damaged
+	 * 					rating			- the rating of the movie in enum(G, PG, PG-13, R, NC-17)
+	 * 					specialFeatures - a comma separated list of special features
+	 * 					actors			- an array of all actors in the film in 'lastName, firstName' format
+	 * Returns: A String description of how the insert went
+	 */
 	public String addFilm(String title, String description, int releaseYear,
 			int languageId, int rentalDuration, double rentalRate, int length,
 			double replacementCost, String rating, String specialFeatures, String[] actors)
@@ -684,6 +721,7 @@ public class SakilaController
 		{
 			try
 			{
+				//Do a roll back in case it failed. If it didn't, will not undo the commit
 				connection.rollback();
 				//Turn connection back off "transaction mode"
 				connection.setAutoCommit(true);
