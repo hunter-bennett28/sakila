@@ -61,54 +61,13 @@ public class SakilaController
 			System.out.println("SQL Exception caught while closing database objects: " + ex.getMessage());
 		}
 	}
-<<<<<<< Upstream, based on origin/master
 	
-	//Returns the id value (store #) for every store in the database
-=======
-
-	public boolean addActor(String firstName, String lastName)
-	{
-		try
-		{
-			//Establish a connection to the db
-			createConnection();
-
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
-			Date date = new Date();
-			String lastUpdate = sdf.format(date.getTime());
-
-			statement = connection.createStatement();
-			int returnValue = statement.executeUpdate(
-					"INSERT INTO actor (first_name, last_name, last_update)" +
-							"VALUES ('" + firstName + "', '" + lastName + "', '" + lastUpdate + "');"
-					);
-
-			if(returnValue == 1)
-				return true;
-		}
-		catch(SQLException ex)
-		{
-			System.out.println("SQL Exception caught: " + ex.getMessage());
-		}
-		catch(Exception ex)
-		{
-			System.out.println("Exception caught: " + ex.getMessage());
-		}
-		finally 
-		{
-			//Close the connection to the db
-			closeConnection();
-		}
-		return false;
-	}
-
 	/**
 	 * Method Name: getStores()
 	 * Purpose: Retrieves a vector of all the stores
 	 * Accepts: No params
 	 * Returns: A vector of strings holding all the store_id fields in the store table
 	 */	
->>>>>>> 8eb9972 Standardized comments on methods and fixed bug with getStores
 	public Vector<String> getStores()
 	{
 		try 
