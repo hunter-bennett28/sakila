@@ -97,7 +97,7 @@ public class FilmReport extends JPanel implements SakilaTab {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				//format the date if it is the correct length and the user is not deleting their date by pressing backspace
-				if((txtStartDate.getText().length()==FIRST_SLASH_INDEX || txtStartDate.getText().length()==SECOND_SLASH_INDEX) && !(e.getKeyChar()==BACKSPACE_KEY_CHAR))
+				if((txtStartDate.getText().length()==FIRST_SLASH_INDEX || txtStartDate.getText().length()==SECOND_SLASH_INDEX) && !(e.getKeyChar()==KeyEvent.VK_BACK_SPACE || e.getKeyChar()==KeyEvent.VK_DELETE))
 					txtStartDate.setText(txtStartDate.getText()+'/');
 
 				//Make sure the input value is within the max number of chars 
@@ -133,7 +133,7 @@ public class FilmReport extends JPanel implements SakilaTab {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				//format the date if it is the correct length and the user is not deleting their date by pressing backspace
-				if((txtEndDate.getText().length()==FIRST_SLASH_INDEX || txtEndDate.getText().length()==SECOND_SLASH_INDEX) && !(e.getKeyChar()==BACKSPACE_KEY_CHAR))
+				if((txtEndDate.getText().length()==FIRST_SLASH_INDEX || txtEndDate.getText().length()==SECOND_SLASH_INDEX) && !(e.getKeyChar()==KeyEvent.VK_BACK_SPACE || e.getKeyChar()==KeyEvent.VK_DELETE))
 					txtEndDate.setText(txtEndDate.getText()+'/');
 
 				//Make sure the input value is within the max number of chars 
