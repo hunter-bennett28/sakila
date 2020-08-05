@@ -169,6 +169,7 @@ public class AddFilm extends JPanel implements SakilaTab
 		});
 		rightPanel.add(removeActor);
 		
+		//Add Copies Row
 		rightPanel.add(new JLabel("Number of Copies", JLabel.RIGHT));
 		numberOfCopies = new JTextField();
 		rightPanel.add(numberOfCopies);
