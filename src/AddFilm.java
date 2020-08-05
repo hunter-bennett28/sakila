@@ -16,7 +16,7 @@ public class AddFilm extends JPanel implements SakilaTab
 	final int MIN_RENTAL_DURATION = 3;
 	final int MAX_RENTAL_DURATION = 7;
 	
-	JTextField title, description, filmLength, replacementCost;
+	JTextField title, description, filmLength, replacementCost, numberOfCopies;
 	JComboBox<String> releaseYear, language, rentalDuration, rentalRate, rating;
 	JList<String> actorsList, selectedActors;
 	JCheckBox trailers, commentaries, deletedScenes, behindScenes;
@@ -32,13 +32,13 @@ public class AddFilm extends JPanel implements SakilaTab
 		//Boiler plate
 		super(new GridLayout(1, 2, 10, 10));
 		this.home = home;
-		this.width = home.WINDOW_WIDTH + 200;
+		this.width = home.WINDOW_WIDTH + 220;
 		this.height = 400;
 		thisPanel = this;
 		
 		//Set Up Panels
-		JPanel leftPanel = new JPanel(new GridLayout(8, 2, 10, 10));
-		JPanel rightPanel = new JPanel(new GridLayout(8, 2, 10, 10));
+		JPanel leftPanel = new JPanel(new GridLayout(9, 2, 10, 10));
+		JPanel rightPanel = new JPanel(new GridLayout(9, 2, 10, 10));
 
 		/* Set up Left panel */
 		
@@ -82,12 +82,12 @@ public class AddFilm extends JPanel implements SakilaTab
 		replacementCost = new JTextField();
 		leftPanel.add(replacementCost);
 		
-		/* Set up Right panel */
-		
 		//Rating Row
-	  rightPanel.add(new JLabel("Rating:", JLabel.RIGHT));
+		leftPanel.add(new JLabel("Rating:", JLabel.RIGHT));
 		rating = populateRatings();
-		rightPanel.add(rating);
+		leftPanel.add(rating);
+		
+		/* Set up Right panel */
 		
 		//Trailers Row
 		rightPanel.add(new JLabel("Trailers", JLabel.RIGHT));
@@ -169,6 +169,10 @@ public class AddFilm extends JPanel implements SakilaTab
 		});
 		rightPanel.add(removeActor);
 		
+		rightPanel.add(new JLabel("Number of Copies", JLabel.RIGHT));
+		numberOfCopies = new JTextField();
+		rightPanel.add(numberOfCopies);
+		
 		//Add Film/Reset Row
 		addFilm = new JButton("Add Film");
 		addFilm.addActionListener(new AddFilmListener());
@@ -201,6 +205,7 @@ public class AddFilm extends JPanel implements SakilaTab
 				deletedScenes.setSelected(false);
 				behindScenes.setSelected(false);
 				actorsModel.clear();
+				numberOfCopies.setText("");
 			}
 		});
 		rightPanel.add(resetForm);
@@ -334,6 +339,7 @@ public class AddFilm extends JPanel implements SakilaTab
 			boolean hasDeletedScenes;
 			boolean hasBehindTheScenes;
 			String [] actorsEntered;
+			int copiesEntered = 0;
 			
 			//Ensure a title was entered
 			titleEntered = title.getText();
@@ -365,10 +371,12 @@ public class AddFilm extends JPanel implements SakilaTab
 			try
 			{
 				lengthEntered = Integer.parseInt(filmLength.getText());
+				if(lengthEntered < 0)
+					throw new NumberFormatException();
 			}
 			catch (NumberFormatException ex)
 			{
-				errorStrings.add("Please enter an integer length.");
+				errorStrings.add("Please enter a positive integer length.");
 				
 				if(firstOffender == null)
 					firstOffender = filmLength;
@@ -378,10 +386,12 @@ public class AddFilm extends JPanel implements SakilaTab
 			try
 			{
 				replacementCostEntered = Double.parseDouble(replacementCost.getText());
+				if(replacementCostEntered < 0.0)
+					throw new NumberFormatException();
 			}
 			catch (NumberFormatException ex)
 			{
-				errorStrings.add("Please enter a monetary value replacement cost.");
+				errorStrings.add("Please enter a positive monetary value replacement cost.");
 				
 				if(firstOffender == null)
 					firstOffender = replacementCost;
@@ -416,6 +426,21 @@ public class AddFilm extends JPanel implements SakilaTab
 					firstOffender = addActor;
 			}
 			
+			try
+			{
+				//ensure copies is a positive integer
+				copiesEntered = Integer.parseInt(numberOfCopies.getText());
+				if(copiesEntered < 0)
+					throw new NumberFormatException();
+			}
+			catch (NumberFormatException ex)
+			{
+				errorStrings.add("Please enter a positive integer number of copies.");
+				
+				if(firstOffender == null)
+					firstOffender = numberOfCopies;
+			}
+			
 			//If no errors, add film to the database
 			if(errorStrings.size() == 0)
 			{
@@ -430,7 +455,8 @@ public class AddFilm extends JPanel implements SakilaTab
 						replacementCostEntered,
 						ratingEntered,
 						specialFeaturesString,
-						actorsEntered
+						actorsEntered,
+						copiesEntered
 				);
 				
 				//Inform user of result of the add

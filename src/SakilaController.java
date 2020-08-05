@@ -644,11 +644,12 @@ public class SakilaController
 	 * 					rating			- the rating of the movie in enum(G, PG, PG-13, R, NC-17)
 	 * 					specialFeatures - a comma separated list of special features
 	 * 					actors			- an array of all actors in the film in 'lastName, firstName' format
+	 * 					copies			- number of copies to add to the store
 	 * Returns: A String description of how the insert went
 	 */
 	public String addFilm(String title, String description, int releaseYear,
 			int languageId, int rentalDuration, double rentalRate, int length,
-			double replacementCost, String rating, String specialFeatures, String[] actors)
+			double replacementCost, String rating, String specialFeatures, String[] actors, int copies)
 	{
 		String errorMessage = "Film not added.";
 		try
@@ -709,11 +710,32 @@ public class SakilaController
 						String sqlString = "INSERT INTO film_actor VALUES (" + actorId + ", " + filmId + ", '" + lastUpdate + "');";
 						int addJunctionReturnValue = statement.executeUpdate(sqlString);
 						
-						if(addJunctionReturnValue == -1)
+						//If no rows were updated, don't do any more inserts
+						if(addJunctionReturnValue < 1)
 							allJunctionInsertsWorked = false;
+						else
+						{
+							//Add film copies to the inventory table
+							String sqlInventoryInsertString = "INSERT INTO inventory (film_id, store_id, last_update) VALUES";
+							
+							//For each copy entered, add an additional entry into the inventory table
+							for (int j = 0; j < copies; j++)
+							{
+								//Assuming store 1 for brevity
+								sqlInventoryInsertString += " ( " + filmId + ", 1, '" + lastUpdate + "')";
+								if(j != copies - 1)
+									sqlInventoryInsertString += ",";
+							}
+							sqlInventoryInsertString += ";";
+							
+							int inventoryUpdateReturn = statement.executeUpdate(sqlInventoryInsertString);
+							
+							if(inventoryUpdateReturn < 1) //if no rows were inserted, it failed
+								allJunctionInsertsWorked = false;
+						}
 					}
 					
-					//Ensure all adds worked correctly
+					//Ensure all adds worked correctly before committing
 					if(allJunctionInsertsWorked)
 					{
 						connection.commit();
