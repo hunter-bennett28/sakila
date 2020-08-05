@@ -40,6 +40,9 @@ public class SakilaHome extends JFrame
 		HomeTab homeTab = new HomeTab();
 		tabPane.addTab("Home", new ImageIcon("images/home.png"), homeTab, "Home"); //blank pane to test on click listener for switching to add actor
 
+		AddCustomer addCustomer = new AddCustomer(this);
+		tabPane.addTab("Add Customer", new ImageIcon("images/actor.png"), addCustomer, "Add a customer to the database");
+		
 		AddActor addActor = new AddActor(this);
 		tabPane.addTab("Add Actor", new ImageIcon("images/actor.png"), addActor, "Add an actor to the database");
 	

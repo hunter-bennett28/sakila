@@ -5,11 +5,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Vector;
 
+import javax.swing.JComboBox;
 import javax.swing.table.TableModel;
 
 /**
@@ -130,6 +132,53 @@ public class SakilaController
 			}
 			
 			return categories;
+		}
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Exception caught: " + ex.getMessage());
+		}
+		finally {
+			//Close the connection to the db
+			closeConnection();
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * Method Name: getCities()
+	 * Purpose: Retrieves a vector of all the cities
+	 * Accepts: No params
+	 * Returns: A vector of strings holding all the cities in the city table
+	 */	
+	public String[] getCities(int countryIndex)
+	{
+		try 
+		{
+			//Establish a connection to the db
+			createConnection();
+
+			statement=connection.createStatement();
+			result= statement.executeQuery("SELECT city\r\n FROM sakila.city\r\n WHERE country_id = " + countryIndex  + ";");
+
+			//Load into vector
+			Vector<String>	cityV = new Vector<String>();
+			cityV.add("Select a city");
+			int i = 0; 
+			while(result.next()) 
+			{
+				cityV.add(result.getString("city"));
+				i++;
+			}
+			
+			Object[] objArray = cityV.toArray(); 
+			String[] cities = Arrays.copyOf(objArray, objArray.length, String[].class); 
+			
+			return cities;
 		}
 		catch(SQLException ex)
 		{
@@ -755,4 +804,383 @@ public class SakilaController
 		return errorMessage;
 	}
 
+	/**
+	 * Method Name: getCountries()
+	 * Purpose: Retrieves a vector of all the countries 
+	 * Accepts: null
+	 * Returns: A vector of strings holding all the countries in the country table
+	 */	
+	public Vector<String> getCountries()
+	{
+		try 
+		{
+			//Establish a connection to the db
+			createConnection();
+
+			statement=connection.createStatement();
+			result= statement.executeQuery("SELECT country\r\n" + 
+					"FROM country;");
+
+			//Load into vector
+			Vector<String> countries=new Vector<String>();			
+			while(result.next()) 
+			{
+				countries.add(result.getString("country"));
+			}
+			
+			return countries;
+		}
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		catch(Exception ex)
+		{
+			System.out.println("Exception caught: " + ex.getMessage());
+		}
+		finally {
+			//Close the connection to the db
+			closeConnection();
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * Method Name: addCustomer()
+	 * Purpose: Adds an customer to the database as well as the connections between it and its address tables
+	 * Accepts: firstName - customer first name
+	 * 					lastName - customer last name
+	 *          email - customer email
+	 *          isActive - whether active customer or not
+	 * 					address - customer address
+	 * 					address 2 - secondary customer address
+	 * 					cityName - customer city name
+	 *          cityId - the id number representing the city
+	 *          countryName - name of customer country 
+	 * 					countryId - the id number representing the country 
+	 *          district - customers district
+	 *          phone - customer phone number
+	 *          postalCode - customer postal code
+	 * Returns: A String description of how the insert went
+	 */
+	public String addCustomer(String firstName, String lastName, String email,
+			boolean isActive, String address, String address2, String cityName, int cityId, 
+			String countryName, int countryId, String district, String phone, String postalCode)
+	{
+		String errorMessage = "Customer not added.";
+		
+		try 
+		{ 
+			createConnection(); 
+	  	connection.setAutoCommit(false);
+		  
+		  //Check to see if the customer already exists 
+		  if(getCustomerByFullName(firstName, lastName) == -1) //if it doesn't exist, add it 
+		  {
+		  	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss"); 
+		  	Date date = new Date(); 
+		  	String lastUpdate = sdf.format(date.getTime());
+		  
+		  	//Create and populate prepared statement 
+		  	String sqlAddressInsert = "INSERT INTO address (address, address2, city_id, district, last_update, "
+		  			+ "location, phone, postal_code) "
+		  			+ "VALUES (?, ?, ?, ?, ?, ST_GeomFromText('POINT(0 0)'), ?, ?);"; 
+		  
+		  	prepStatement = connection.prepareStatement(sqlAddressInsert);
+		  
+			  prepStatement.setString(1, address);
+			  prepStatement.setString(2, address2);
+			  prepStatement.setInt(3, cityId);
+			  prepStatement.setString(4, district);
+			  prepStatement.setString(5, lastUpdate);
+			  prepStatement.setString(6, phone);
+			  prepStatement.setString(7, postalCode);
+		  
+			  int addAddressReturnValue = prepStatement.executeUpdate();
+			  
+			  //If address added successfully, then we can add the customer
+			  if(addAddressReturnValue > 0)
+			  {
+		  	
+			  	//Get the ID of the address added 
+			  	int addressId = getAddressId(address, cityId, district, phone, postalCode); 
+			  	
+			  	String sqlCustomerInsert = "INSERT INTO customer (address_id, create_date, email, first_name, "
+			 		   + "last_name, store_id) "
+					   + "VALUES (?, ?, ?, ?, ?, 1);"; 
+			  	
+			  	 prepStatement = connection.prepareStatement(sqlCustomerInsert);
+			  	
+			  	 prepStatement.setInt(1, addressId);
+					 prepStatement.setString(2, lastUpdate);
+					 prepStatement.setString(3, email);
+					 prepStatement.setString(4, firstName);
+					 prepStatement.setString(5, lastName);
+		
+					 int addCustomerReturnValue = prepStatement.executeUpdate();
+			  }
+		  
+			  return "Customer added successfully!"; 
+		  
+		  }  
+		  //Customer already existed in database so it was not added 
+			else 
+			{ 
+				return "Customer already exists in the database.";
+			}
+		  
+		}
+		catch(SQLException ex) 
+		{ 
+			errorMessage += " SQL Exception: " + ex.getMessage(); 
+	  } 
+		finally 
+		{ 
+			//Do a roll back in case it failed. If it didn't, will notundo the commit 
+			try 
+			{ 
+				connection.rollback(); //Turn connection back off
+				connection.setAutoCommit(true); 
+				closeConnection(); 
+			} 
+			catch (SQLException ex) 
+			{ 
+				errorMessage += " SQL Exception: " + ex.getMessage(); 
+			} 
+		}
+		
+	return errorMessage;
+}
+
+	
+	/**
+	 * Method Name: getAddressId()
+	 * Purpose: To return the Id of the address added 
+	 * Accepts: address - customer address
+	 *          cityId - the id number representing the city
+	 *          district - customers district
+	 *          phone - customer phone number
+	 *          postalCode - customer postal code
+	 * Returns: An integer representing the address id 
+	 */
+private int getAddressId(String address, int cityId, String district, String phone, String postalCode)
+{
+	int id = -1;
+	//Uses new objects because other functions with open objects call this
+	PreparedStatement getIdStatement = null;
+	ResultSet results = null;
+	
+	try
+	{
+		//Use new objects because a statement can still be open while calling this
+		getIdStatement = connection.prepareStatement(
+				"SELECT address_id FROM address WHERE address = ? AND city_id = ? AND district = ? AND phone = ? AND postal_code = ?;"
+		);
+		
+		getIdStatement.setString(1, address);
+		getIdStatement.setInt(2, cityId);
+		getIdStatement.setString(3, district);
+		getIdStatement.setString(4, phone);
+		getIdStatement.setString(5, postalCode);
+		
+		results = getIdStatement.executeQuery();
+		
+		//If a value retrieved, get 
+		if(results.next())
+			id = results.getInt(1);
+	}
+	catch(SQLException ex)
+	{
+		System.out.println("SQL Exception caught: " + ex.getMessage());
+	}
+	finally 
+	{
+		try
+		{
+			if(results != null)
+				results.close();
+			
+			if(getIdStatement != null)
+				getIdStatement.close();			
+			
+			//connection.close();
+		} 
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}	
+	}
+	
+	return id;
+	
+}
+
+/**
+ * Method Name: getActorIdByName(String firstName, String lastName)
+ * Purpose: retrieves the integer id of actor with given name from database
+ * Accepts: a String first name, a String last name
+ * Returns: the integer id of the actor in the database or -1 if not found
+ */
+	public int getCustomerByFullName(String firstName, String lastName)
+	{
+	
+		int id = -1;
+		//Uses new objects because other functions with open objects call this
+		PreparedStatement getIdStatement = null;
+		ResultSet results = null;
+		
+		try
+		{
+			//createConnection(); 
+			
+			//Use new objects because a statement can still be open while calling this
+			getIdStatement = connection.prepareStatement(
+					"SELECT customer_id FROM customer WHERE last_name = ? AND first_name = ?;"
+			);
+			
+			getIdStatement.setString(1, lastName);
+			getIdStatement.setString(2, firstName);
+			
+			results = getIdStatement.executeQuery();
+			
+			//If a value retrieved, get 
+			if(results.next())
+				id = results.getInt(1);
+		}
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		finally 
+		{
+			try
+			{
+				if(results != null)
+					results.close();
+				
+				if(getIdStatement != null)
+					getIdStatement.close();			
+				
+				//connection.close();
+			} 
+			catch(SQLException ex)
+			{
+				System.out.println("SQL Exception caught: " + ex.getMessage());
+			}	
+		}
+		
+		return id;
+	}
+
+
+	/**
+	 * Method Name: GetCityIdByName
+	 * Purpose: retrieves the integer id of the city with given city name from database
+	 * Accepts: a String for city name
+	 * Returns: the integer id of the city in the database or -1 if not found
+	 */	
+public int GetCityIdByName(String cityNameEntered)
+{
+	int id = -1;
+	//Uses new objects because other functions with open objects call this
+	PreparedStatement getIdStatement = null;
+	ResultSet results = null;
+	
+	try
+	{
+		createConnection(); 
+		
+		//Use new objects because a statement can still be open while calling this
+		getIdStatement = connection.prepareStatement(
+				"SELECT city_id FROM city WHERE city = ?;"
+		);
+		
+		getIdStatement.setString(1, cityNameEntered);
+		
+		results = getIdStatement.executeQuery();
+		
+		//If a value retrieved, get 
+		if(results.next())
+			id = results.getInt(1);
+	}
+	catch(SQLException ex)
+	{
+		System.out.println("SQL Exception caught: " + ex.getMessage());
+	}
+	finally 
+	{
+		try
+		{
+			if(results != null)
+				results.close();
+			
+			if(getIdStatement != null)
+				getIdStatement.close();		
+			
+			connection.close();
+		} 
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}	
+	}
+	
+	return id;
+	
+	}
+
+/**
+ * Method Name: GetCountryIdByName
+ * Purpose: retrieves the integer id of the country with given country name from database
+ * Accepts: a String for country name
+ * Returns: the integer id of the country in the database or -1 if not found
+ */	
+public int GetCountryIdByName(String countryNameEntered)
+{
+	int id = -1;
+	//Uses new objects because other functions with open objects call this
+	PreparedStatement getIdStatement = null;
+	ResultSet results = null;
+	
+	try
+	{
+		createConnection(); 
+		
+		//Use new objects because a statement can still be open while calling this
+		getIdStatement = connection.prepareStatement(
+				"SELECT country_id FROM country WHERE country = ?;"
+		);
+		
+		getIdStatement.setString(1, countryNameEntered);
+		
+		results = getIdStatement.executeQuery();
+		
+		//If a value retrieved, get 
+		if(results.next())
+			id = results.getInt(1);
+	}
+	catch(SQLException ex)
+	{
+		System.out.println("SQL Exception caught: " + ex.getMessage());
+	}
+	finally 
+	{
+		try
+		{
+			if(results != null)
+				results.close();
+			
+			if(getIdStatement != null)
+				getIdStatement.close();	
+			
+			connection.close();
+		} 
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}	
+	}
+	return id;	
+}
 }
