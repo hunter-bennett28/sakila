@@ -755,4 +755,215 @@ public class SakilaController
 		return errorMessage;
 	}
 
+	public Vector<String> getRentableFilms(int storeNum)
+	{
+		Vector<String> allFilms = new Vector<String>();
+		allFilms.add("");
+		try
+		{
+			createConnection();
+			statement = connection.createStatement();
+			result = statement.executeQuery("SELECT DISTINCT f.film_id, f.title, i.store_id FROM film f "
+					+ "INNER JOIN inventory i "
+					+ "WHERE f.film_id = i.film_id AND i.store_id = " 
+					+ storeNum + " AND inventory_in_stock(i.inventory_id)");
+
+			while(result.next())
+			{
+				//Add a new pair to films with the ID and title
+				allFilms.add(result.getString(2));
+			}
+
+			return allFilms;
+		}
+		catch (SQLException ex)
+		{
+			System.out.println("1SQL Exception caught: " + ex.getMessage());
+		}
+		finally
+		{
+			closeConnection();
+		}
+
+		return allFilms;		
+	}
+	
+	public Vector<String> getSalesStaff(int storeNum)
+	{
+		Vector<String> salesStaff = new Vector<String>();
+		try
+		{
+			createConnection();
+			statement = connection.createStatement();
+			result = statement.executeQuery("SELECT staff_id FROM staff where store_id = " + storeNum);
+
+			while(result.next())
+			{
+				//Add a new pair to films with the ID and title
+				salesStaff.add(result.getString(1));
+			}
+
+			return salesStaff;
+		}
+		catch (SQLException ex)
+		{
+			System.out.println("2SQL Exception caught: " + ex.getMessage());
+		}
+		finally
+		{
+			closeConnection();
+		}
+
+		return salesStaff;		
+	}
+	
+	
+	public Vector<String> getCustomer()
+	{
+		Vector<String> customers = new Vector<String>();
+		customers.add("");
+		try
+		{
+			createConnection();
+			statement = connection.createStatement();
+			result = statement.executeQuery("SELECT first_name, last_name FROM customer ORDER BY last_name");
+
+			while(result.next())
+			{
+				//Add a new pair to films with the ID and title
+				customers.add(result.getString(2) + ", " + result.getString(1));
+			}
+
+			return customers;
+		}
+		catch (SQLException ex)
+		{
+			System.out.println("3SQL Exception caught: " + ex.getMessage());
+		}
+		finally
+		{
+			closeConnection();
+		}
+
+		return customers;		
+	}
+	
+	public double getBalance(String firstName, String lastName)
+	{
+		double balance = -100000.0;//change this later
+		try
+		{
+			createConnection();
+			statement = connection.createStatement();
+			result = statement.executeQuery("SELECT customer_id, "
+					+ "last_update, sakila.get_customer_balance(customer_id, last_update) "
+					+ "AS balance FROM CUSTOMER "
+					+ "where first_name = '"+ firstName +"' AND last_name = '"+ lastName +"'");
+
+			while (result.next())
+		{
+				balance = Double.parseDouble(result.getString(3));
+		}
+
+			return balance;
+		}
+		catch (SQLException ex)
+		{
+			System.out.println("3SQL Exception caught: " + ex.getMessage());
+		}
+		finally
+		{
+			closeConnection();
+		}
+
+		return balance;		
+	}	
+	
+	public String addRent(String customerFirstName, String customerLastName, String movieTitle, int salesClerkNum, int storeNum)
+	{
+		String rental = "\nTransaction was not processed, please contact your system administrator";
+		
+		
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
+		Date date = new Date();
+		String dateNow = sdf.format(date.getTime());
+		int returnDays = -1;
+		int inventoryId = -1;
+		int customerId = -1;
+		double rentalRate = -1.0;
+		int rentalId = -1;
+		int addPayment = -1;
+		
+		try
+		{
+			createConnection();
+			statement = connection.createStatement();
+			result = statement.executeQuery("SELECT f.rental_duration, f.rental_rate, "
+					+ "i.inventory_id FROM film f INNER JOIN inventory i "
+					+ "ON i.film_id = f.film_id WHERE title = '" + movieTitle + "' "
+					+ "and inventory_in_stock(i.inventory_id) and store_id = " + storeNum+ " limit 0,1;");
+
+			while (result.next())
+		{
+				returnDays = Integer.parseInt(result.getString(1));
+				inventoryId = Integer.parseInt(result.getString(3));
+				rentalRate = Double.parseDouble(result.getString(2));
+		}
+			result = statement.executeQuery("SELECT customer_id from customer WHERE first_name = '" 
+		+ customerFirstName + "' AND last_name = '"+ customerLastName + "'");
+			
+			while (result.next())
+			{
+				customerId = Integer.parseInt(result.getString(1));
+			}
+			connection.setAutoCommit(false);
+			
+			String sqlRentalStatement = ("INSERT INTO rental(rental_date, inventory_id, customer_id, staff_id)"
+					+ "VALUES (?, ?, ?, ?);" );
+			
+			prepStatement = connection.prepareStatement(sqlRentalStatement, Statement.RETURN_GENERATED_KEYS);
+			
+				int prepVarIndex = 1;
+					prepStatement.setString(prepVarIndex++, dateNow);
+					prepStatement.setInt(prepVarIndex++, inventoryId);
+					prepStatement.setInt(prepVarIndex++, customerId);
+					prepStatement.setInt(prepVarIndex++, salesClerkNum);
+			
+					int addRentalReturnValue = prepStatement.executeUpdate();
+					
+					ResultSet result = prepStatement.getGeneratedKeys();
+						if(result.next())
+						{
+							rentalId = result.getInt(1);
+						}
+			
+						if(addRentalReturnValue > 0) {
+	
+			 addPayment = statement.executeUpdate("INSERT INTO payment (customer_id, staff_id, rental_id, amount, payment_date)"
+					+ "VALUES (" + customerId + ", " + salesClerkNum + ", "+ rentalId +", "+ rentalRate +", '"+ dateNow +"')");
+						}
+					if(addPayment != 0)
+			{
+				connection.commit();
+				rental = "\nPlease enjoy " + movieTitle + "!\nA balance of $" + rentalRate + " is due in "
+						+ returnDays + " days, when you return the movie.\n";
+				connection.setAutoCommit(true);
+			}
+			else {
+			connection.rollback();
+			return rental;
+			}
+		}
+		catch (SQLException ex)
+		{
+			System.out.println("3SQL Exception caught: " + ex.getMessage());
+		}
+		finally
+		{
+			
+			closeConnection();
+		}
+		return rental;	
+	}
 }

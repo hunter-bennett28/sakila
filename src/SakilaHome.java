@@ -51,7 +51,10 @@ public class SakilaHome extends JFrame
 		
 		CustomerReport reportCustomer = new CustomerReport(this);
 		tabPane.addTab("Customer Report", new ImageIcon("images/userSilhouette.png"), reportCustomer, "Get a report from the database");
-
+		
+		AddRental addRental = new AddRental(this);
+		tabPane.addTab("Add Rental", new ImageIcon("images/ticket.png"),addRental, "Add a rental to the database");
+		
 		//Setup change listener for clicking on tabs
 		tabPane.addChangeListener(new TabChangeListener(this, tabPane));
 
