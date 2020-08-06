@@ -777,30 +777,39 @@ public class SakilaController
 		return errorMessage;
 	}
 
+	/**
+	 * Method Name: getRentableFilms(int storeNum)
+	 * Purpose: returns a list of films that are available for rent
+	 * Accepts: storeNum - the current store's ID
+	 * Returns: A string vector of the movies that are in stock at the current store
+	 */
 	public Vector<String> getRentableFilms(int storeNum)
 	{
 		Vector<String> allFilms = new Vector<String>();
 		allFilms.add("");
+
 		try
 		{
+			//find all rentable films
 			createConnection();
 			statement = connection.createStatement();
-			result = statement.executeQuery("SELECT DISTINCT f.film_id, f.title, i.store_id FROM film f "
+			result = statement.executeQuery("SELECT DISTINCT f.title FROM film f "
 					+ "INNER JOIN inventory i "
 					+ "WHERE f.film_id = i.film_id AND i.store_id = " 
-					+ storeNum + " AND inventory_in_stock(i.inventory_id)");
+					+ storeNum + " AND inventory_in_stock(i.inventory_id)"
+					+ "ORDER BY f.title");
 
 			while(result.next())
 			{
-				//Add a new pair to films with the ID and title
-				allFilms.add(result.getString(2));
+				//Add films to the vector
+				allFilms.add(result.getString(1));
 			}
 
 			return allFilms;
 		}
 		catch (SQLException ex)
 		{
-			System.out.println("1SQL Exception caught: " + ex.getMessage());
+			System.out.println("SQL Exception caught: " + ex.getMessage());
 		}
 		finally
 		{
@@ -809,19 +818,26 @@ public class SakilaController
 
 		return allFilms;		
 	}
-	
+
+	/**
+	 * Method Name: getSalesStaff(int storeNum)
+	 * Purpose: returns a list of staff that currently work at the store
+	 * Accepts: storeNum - the current store's ID
+	 * Returns: A string vector of the staff that currently work at the store
+	 */
 	public Vector<String> getSalesStaff(int storeNum)
 	{
 		Vector<String> salesStaff = new Vector<String>();
 		try
 		{
+			//get the list of sales staff
 			createConnection();
 			statement = connection.createStatement();
 			result = statement.executeQuery("SELECT staff_id FROM staff where store_id = " + storeNum);
 
 			while(result.next())
 			{
-				//Add a new pair to films with the ID and title
+				//add the sales staff to the vector
 				salesStaff.add(result.getString(1));
 			}
 
@@ -829,7 +845,7 @@ public class SakilaController
 		}
 		catch (SQLException ex)
 		{
-			System.out.println("2SQL Exception caught: " + ex.getMessage());
+			System.out.println("SQL Exception caught: " + ex.getMessage());
 		}
 		finally
 		{
@@ -838,8 +854,12 @@ public class SakilaController
 
 		return salesStaff;		
 	}
-	
-	
+
+	/**
+	 * Method Name: getCustomer()
+	 * Purpose: returns a list of customers that are currently active
+	 * Returns: A string vector of all the active customers in the db
+	 */
 	public Vector<String> getCustomer()
 	{
 		Vector<String> customers = new Vector<String>();
@@ -848,14 +868,13 @@ public class SakilaController
 		{
 			createConnection();
 			statement = connection.createStatement();
-			result = statement.executeQuery("SELECT first_name, last_name FROM customer ORDER BY last_name");
+			result = statement.executeQuery("SELECT first_name, last_name FROM customer WHERE active = true ORDER BY last_name");
 
 			while(result.next())
 			{
 				//Add a new pair to films with the ID and title
 				customers.add(result.getString(2) + ", " + result.getString(1));
 			}
-
 			return customers;
 		}
 		catch (SQLException ex)
@@ -869,29 +888,44 @@ public class SakilaController
 
 		return customers;		
 	}
-	
+	/**
+	 * Method Name: getSalesStaff(int storeNum)
+	 * Purpose: Returns the balance of the customer trying to rent. If the balance is greater than zero
+	 * 					they won't be able to rent a film
+	 * Accepts: FirstName - A string representing the first name of the customer trying to rent
+	 * 					LastName - A string representing the last name of the customer trying to rent
+	 * Returns: a double representing the customer's current balance.
+	 */
 	public double getBalance(String firstName, String lastName)
 	{
-		double balance = -100000.0;//change this later
+		double balance = -100000.0;
 		try
 		{
+			//get the balance for the customer trying to rent
 			createConnection();
-			statement = connection.createStatement();
-			result = statement.executeQuery("SELECT customer_id, "
+
+			PreparedStatement getBalanceStatement = null;
+
+			getBalanceStatement = connection.prepareStatement("SELECT customer_id, "
 					+ "last_update, sakila.get_customer_balance(customer_id, last_update) "
 					+ "AS balance FROM CUSTOMER "
-					+ "where first_name = '"+ firstName +"' AND last_name = '"+ lastName +"'");
+					+ "where first_name = ? AND last_name = ?");
+
+			getBalanceStatement.setString(1, firstName);
+			getBalanceStatement.setString(2, lastName);
+
+			result = getBalanceStatement.executeQuery();	
 
 			while (result.next())
-		{
-				balance = Double.parseDouble(result.getString(3));
-		}
+			{
+				balance = result.getDouble(3);
+			}
 
 			return balance;
 		}
 		catch (SQLException ex)
 		{
-			System.out.println("3SQL Exception caught: " + ex.getMessage());
+			System.out.println("SQL Exception caught: " + ex.getMessage());
 		}
 		finally
 		{
@@ -900,81 +934,131 @@ public class SakilaController
 
 		return balance;		
 	}	
-	
+
+	/**
+	 * Method Name: addRent(String customerFirstName, String customerLastName, String movieTitle, int salesClerkNum, int storeNum)
+	 * Purpose: Executes the rental for the customer
+	 * Accepts: customerFirstName - A string representing the first name of the customer trying to rent
+	 * 					customerLastName - A string representing the last name of the customer trying to rent
+	 * 					movieTitle - A string of the current movie trying to be rented
+	 * 					salesClerkNum - the id of the current store clerk
+	 * 					storeNum - the id of the current store location
+	 * Returns: a string representing the result of the rental transaction
+	 */
+
 	public String addRent(String customerFirstName, String customerLastName, String movieTitle, int salesClerkNum, int storeNum)
 	{
+		//if the rental doesn't go through, this message will get sent back
 		String rental = "\nTransaction was not processed, please contact your system administrator";
-		
-		
-		
+
+
+		//set date to now
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
 		Date date = new Date();
 		String dateNow = sdf.format(date.getTime());
+
+		//variables for the db to return the variables to.
 		int returnDays = -1;
 		int inventoryId = -1;
 		int customerId = -1;
 		double rentalRate = -1.0;
 		int rentalId = -1;
 		int addPayment = -1;
-		
+
 		try
 		{
 			createConnection();
+			//get the length of the rental, the inventory id and the return rate for the movie selected
 			statement = connection.createStatement();
-			result = statement.executeQuery("SELECT f.rental_duration, f.rental_rate, "
-					+ "i.inventory_id FROM film f INNER JOIN inventory i "
-					+ "ON i.film_id = f.film_id WHERE title = '" + movieTitle + "' "
-					+ "and inventory_in_stock(i.inventory_id) and store_id = " + storeNum+ " limit 0,1;");
+			PreparedStatement getRentalInfo = null;
 
-			while (result.next())
-		{
-				returnDays = Integer.parseInt(result.getString(1));
-				inventoryId = Integer.parseInt(result.getString(3));
-				rentalRate = Double.parseDouble(result.getString(2));
-		}
-			result = statement.executeQuery("SELECT customer_id from customer WHERE first_name = '" 
-		+ customerFirstName + "' AND last_name = '"+ customerLastName + "'");
-			
-			while (result.next())
+			getRentalInfo = connection.prepareStatement("SELECT f.rental_duration, f.rental_rate, "
+					+ "i.inventory_id FROM film f INNER JOIN inventory i "
+					+ "ON i.film_id = f.film_id WHERE title = ? "
+					+ "and inventory_in_stock(i.inventory_id) and store_id = ? limit 0,1;");
+
+			getRentalInfo.setString(1, movieTitle);
+			getRentalInfo.setInt(2, storeNum);		
+
+			result = getRentalInfo.executeQuery();
+
+			if (result.next())
 			{
-				customerId = Integer.parseInt(result.getString(1));
+				returnDays = result.getInt(1);
+				inventoryId = result.getInt(3);
+				rentalRate = result.getDouble(2);
 			}
+			//if any of these fields didn't return correctly, return the failed result
+			if(returnDays == -1 || inventoryId == -1 || rentalRate == -1.0) {
+				return rental;
+			}
+
+			PreparedStatement getCustomerID = null;
+			getCustomerID = connection.prepareStatement("SELECT customer_id from customer WHERE first_name = ?" 
+					+  " AND last_name = ?;");
+
+			getCustomerID.setString(1, customerFirstName);
+			getCustomerID.setString(2, customerLastName);
+
+			result = getCustomerID.executeQuery();
+
+			if (result.next())
+			{
+				customerId = result.getInt(1);
+			}
+			//if customer ID doesn't return correctly, return a failed result.
+			if (customerId == -1) {
+				return rental;
+			}
+
 			connection.setAutoCommit(false);
-			
+			//if everything fetched, insert the rental
 			String sqlRentalStatement = ("INSERT INTO rental(rental_date, inventory_id, customer_id, staff_id)"
 					+ "VALUES (?, ?, ?, ?);" );
-			
+
 			prepStatement = connection.prepareStatement(sqlRentalStatement, Statement.RETURN_GENERATED_KEYS);
-			
-				int prepVarIndex = 1;
-					prepStatement.setString(prepVarIndex++, dateNow);
-					prepStatement.setInt(prepVarIndex++, inventoryId);
-					prepStatement.setInt(prepVarIndex++, customerId);
-					prepStatement.setInt(prepVarIndex++, salesClerkNum);
-			
-					int addRentalReturnValue = prepStatement.executeUpdate();
-					
-					ResultSet result = prepStatement.getGeneratedKeys();
-						if(result.next())
-						{
-							rentalId = result.getInt(1);
-						}
-			
-						if(addRentalReturnValue > 0) {
-	
-			 addPayment = statement.executeUpdate("INSERT INTO payment (customer_id, staff_id, rental_id, amount, payment_date)"
-					+ "VALUES (" + customerId + ", " + salesClerkNum + ", "+ rentalId +", "+ rentalRate +", '"+ dateNow +"')");
-						}
-					if(addPayment != 0)
+
+			int prepVarIndex = 1;
+			prepStatement.setString(prepVarIndex++, dateNow);
+			prepStatement.setInt(prepVarIndex++, inventoryId);
+			prepStatement.setInt(prepVarIndex++, customerId);
+			prepStatement.setInt(prepVarIndex++, salesClerkNum);
+
+			int addRentalReturnValue = prepStatement.executeUpdate();
+
+			result = prepStatement.getGeneratedKeys();
+			if(result.next())
+			{
+				rentalId = result.getInt(1);
+			}
+			//if the last statement worked, insert the payment for the rental
+			if(addRentalReturnValue > 0) {
+
+				String sqlPaymentStatement = ("INSERT INTO payment (customer_id, staff_id, rental_id, amount, payment_date)"
+						+ "VALUES (?, ?, ?, ?, ? );");
+
+				prepStatement = connection.prepareStatement(sqlPaymentStatement);
+
+				prepVarIndex = 1;
+				prepStatement.setInt(prepVarIndex++, customerId);
+				prepStatement.setInt(prepVarIndex++, salesClerkNum);
+				prepStatement.setInt(prepVarIndex++, rentalId);
+				prepStatement.setDouble(prepVarIndex++, rentalRate);
+				prepStatement.setString(prepVarIndex++, dateNow);
+
+				addPayment = prepStatement.executeUpdate();
+
+			}
+			//if everything worked, commit and return the result.
+			if(addPayment != 0)
 			{
 				connection.commit();
-				rental = "\nPlease enjoy " + movieTitle + "!\nA balance of $" + rentalRate + " is due in "
-						+ returnDays + " days, when you return the movie.\n";
+				rental = "\nPlease enjoy " + movieTitle + "!\n Return date is in "+ returnDays + " days at a cost of $"+ rentalRate +". \n";
 				connection.setAutoCommit(true);
 			}
 			else {
-			connection.rollback();
-			return rental;
+				connection.rollback();
+				return rental;
 			}
 		}
 		catch (SQLException ex)
@@ -983,9 +1067,62 @@ public class SakilaController
 		}
 		finally
 		{
-			
+
 			closeConnection();
 		}
 		return rental;	
+	}
+
+	/**
+	 * Method Name: GetCurrentlyRentedMovies(String firstName, String lastName)
+	 * Purpose: to see if the customer currently has movies rented
+	 * Accepts: FirstName - A string representing the first name of the customer trying to rent
+	 * 					LastName - A string representing the last name of the customer trying to rent
+	 * Returns: a string vector of the movies that are currently rented out to the customer.
+	 */
+
+	public Vector<String> GetCurrentlyRentedMovies(String firstName, String lastName){
+
+
+		Vector<String> moviesRented = new Vector<String>();
+		try
+		{
+			createConnection();
+
+			PreparedStatement getMovieStatement = null;
+
+			//figure out whether any movies are currently rented out to the customer
+			getMovieStatement = connection.prepareStatement("SELECT f.title FROM film f INNER JOIN inventory i "
+					+ " ON f.film_id = i.film_id INNER JOIN rental r "
+					+ "ON i.inventory_id = r.inventory_id INNER JOIN "
+					+ "customer c ON r.customer_id = c.customer_id "
+					+ "WHERE c.first_name = ? AND c.last_name = ? "
+					+ "AND r.return_date IS NULL;");
+
+			getMovieStatement.setString(2, lastName);
+			getMovieStatement.setString(1, firstName);
+
+			result = getMovieStatement.executeQuery();
+
+			while(result.next())
+			{
+				//get the list of movies from the query
+				moviesRented.add(result.getString(1));
+			}
+
+			//Sort on last name
+			Collections.sort(moviesRented);
+			return moviesRented;
+		}
+		catch (SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		finally
+		{
+			closeConnection();
+		}
+
+		return moviesRented;
 	}
 }
