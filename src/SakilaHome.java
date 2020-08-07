@@ -3,12 +3,11 @@
  * Purpose: An application for interfacing with the Sakila MySQL database.
  * 					Allows for adding things such as actors, movies, transactions, and customers.
  * 					Also allows for querying and displaying data about the database
- * Coder: Hunter Bennett, Connor Black, James Dunton, Taylor DesRoches
+ * Coder: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
  * Date: Jul 14, 2020		
  */
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -21,7 +20,7 @@ public class SakilaHome extends JFrame
 
 	public SakilaHome()
 	{
-		super("Sakila Database");
+		super("Sakila Rental App");
 
 		//Create database connection
 		this.controller = new SakilaController();
@@ -49,14 +48,14 @@ public class SakilaHome extends JFrame
 		AddFilm addFilm = new AddFilm(this);
 		tabPane.addTab("Add Film", new ImageIcon("images/camera.png"), addFilm, "Add a film to the database");
 
+		AddRental addRental = new AddRental(this);
+		tabPane.addTab("Add Rental", new ImageIcon("images/ticket.png"),addRental, "Add a rental to the database");
+		
 		FilmReport reportFilm = new FilmReport(this);
 		tabPane.addTab("Film Report", new ImageIcon("images/Magnifying Glass.png"), reportFilm, "Get a report from the database");
 
 		CustomerReport reportCustomer = new CustomerReport(this);
 		tabPane.addTab("Customer Report", new ImageIcon("images/userSilhouette.png"), reportCustomer, "Get a report from the database");
-		
-		AddRental addRental = new AddRental(this);
-		tabPane.addTab("Add Rental", new ImageIcon("images/ticket.png"),addRental, "Add a rental to the database");
 		
 		//Setup change listener for clicking on tabs
 		tabPane.addChangeListener(new TabChangeListener(this, tabPane));
@@ -84,11 +83,6 @@ public class SakilaHome extends JFrame
 			//set tab specific size
 			home.setSize(tab.getDimensions());
 		}
-	}
-
-	public static void main(String[] args)
-	{
-		new SakilaHome();
 	}
 
 	//Private inner class for setting up a simple introductory home tab
@@ -137,5 +131,11 @@ public class SakilaHome extends JFrame
 			return new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT);
 		}
 
+	}
+	
+
+	public static void main(String[] args)
+	{
+		new SakilaHome();
 	}
 }

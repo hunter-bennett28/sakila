@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
 
 /**
  * Name: AddRental.java
- * Author: James Dunton, Hunter Bennett
- * Descrption: GUI component for adding rentals to the database
+ * Coder: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
+ * Description: GUI component for adding rentals to the database
  * Date: Aug 2, 2020
  */
 
@@ -167,7 +167,7 @@ public class AddRental extends JPanel implements SakilaTab
 
 					double currentBalance = home.controller.getBalance(customerFirstName,customerLastName);
 
-					Vector<String> currentlyRentedMovies = new Vector<String>(home.controller.GetCurrentlyRentedMovies(customerFirstName, customerLastName));
+					Vector<String> currentlyRentedMovies = new Vector<String>(home.controller.getCurrentlyRentedMovies(customerFirstName, customerLastName));
 
 					//check to see if the customer currently owes a ballance
 					if (currentBalance < 0) {

@@ -1,7 +1,7 @@
 /**
  * Program Name: AddFilm.java
  * Purpose: GUI Tab for adding a new film to the database
- * Coder: Hunter Bennett
+ * Coder: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
  * Date: Jul 21, 2020		
  */
 

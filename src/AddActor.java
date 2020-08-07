@@ -1,7 +1,7 @@
 /**
  * Program Name: SakilaHome.java
  * Purpose: GUI tab for adding a new actor to the database
- * Coder: Hunter Bennett
+ * Coder: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
  * Date: Jul 14, 2020		
  */
 
@@ -45,7 +45,6 @@ public class AddActor extends JPanel implements SakilaTab
 
 		filmsModel = new DefaultComboBoxModel<String>(home.controller.getFilms());
 		films = new JComboBox<String>(filmsModel); //populate films combo box
-		films.setEditable(false);
 		this.add(films);
 
 		//Button row

@@ -1,9 +1,10 @@
 /**
  * Name: CustomerReport.java
- * Author: Connor Black
+ * Coder: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
  * Date: Jul. 28, 2020
  * Desc: This reports customers based on a given search criteria in order to see which customers generate the most income and which customers rent the most
  */
+
 import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.awt.*;
