@@ -1323,7 +1323,7 @@ public class SakilaController
 		}
 
 		return moviesRented;
-
+	}
 	/**
 	 * Method Name: getAddressId()
 	 * Purpose: To return the Id of the address added 
