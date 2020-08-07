@@ -19,13 +19,13 @@ public class AddCustomer extends JPanel implements SakilaTab
 	SakilaHome home;
 	int width, height;
 	AddCustomer thisPanel;
-	
+
 	/* Components */
 	JTextField firstName, lastName, email, address, address2, district, postalCode, phone;
 	JComboBox<String> city, country;
 	JButton addCustomer, resetForm; 
 	JCheckBox activeCustomer;
-	
+
 	/**
 	 * Method Name: AddCustomer
 	 * Purpose:  To Create and populate the GUI for the Add Customer Tab
@@ -39,67 +39,67 @@ public class AddCustomer extends JPanel implements SakilaTab
 		this.width = home.WINDOW_WIDTH + 200;;
 		this.height = 300;
 		thisPanel = this;
-		
+
 		//Set Up Panels
 		JPanel leftPanel = new JPanel(new GridLayout(6, 2, 10, 10));
 		JPanel rightPanel = new JPanel(new GridLayout(6, 2, 10, 10));
-		
+
 		/* Set up Left panel */
-		
+
 		//First Name Row
 		leftPanel.add(new JLabel("First Name:", JLabel.RIGHT));
 		firstName = new JTextField();
 		leftPanel.add(firstName);
-		
+
 		//Email Row
 		leftPanel.add(new JLabel("Email:", JLabel.RIGHT));
 		email = new JTextField();
 		leftPanel.add(email);
-		
+
 		//Address Row
 		leftPanel.add(new JLabel("Address:", JLabel.RIGHT));
 		address = new JTextField(); 
 		leftPanel.add(address);
-		
+
 		//District Row
 		leftPanel.add(new JLabel("District:", JLabel.RIGHT));
 		district = new JTextField(); 
 		leftPanel.add(district);
-		
+
 		//Rental Duration Row
 		leftPanel.add(new JLabel("Postal Code:", JLabel.RIGHT));
 		postalCode = new JTextField();
 		leftPanel.add(postalCode);
-		
+
 		leftPanel.add(new JLabel("Country:", JLabel.RIGHT));
 		country = new JComboBox<String>(populateCountries());
 		leftPanel.add(country);
 
 		MyItemListener actionListener = new MyItemListener();
-    country.addItemListener(actionListener);
-		
+		country.addItemListener(actionListener);
+
 		//Customer Buttons Row
 		addCustomer = new JButton("Add Customer");
 		addCustomer.addActionListener(new AddCustomerListener());
-	
-		
+
+
 		/* Set up right panel */
-		
+
 		//Last Name Row
 		rightPanel.add(new JLabel("Last Name:", JLabel.RIGHT));
 		lastName = new JTextField();
 		rightPanel.add(lastName);
-		
+
 		//Active Customer Row
 		rightPanel.add(new JLabel("Active Customer:", JLabel.RIGHT));
 		activeCustomer = new JCheckBox();
 		rightPanel.add(activeCustomer);
-		
+
 		//Address Row
 		rightPanel.add(new JLabel("Address 2:", JLabel.RIGHT));
 		address2 = new JTextField(); 
 		rightPanel.add(address2);
-		
+
 		//City Row
 		rightPanel.add(new JLabel("City:", JLabel.RIGHT));
 		city = new JComboBox<String>(populateBlank());
@@ -109,46 +109,31 @@ public class AddCustomer extends JPanel implements SakilaTab
 		rightPanel.add(new JLabel("Phone Number:", JLabel.RIGHT));
 		phone = new JTextField();
 		rightPanel.add(phone);
-		
+
 		//Reset Buttons Row
 		resetForm = new JButton("Reset");
 		resetForm.addActionListener(new ActionListener()
-			{	
-				/**
-				 * Method Name: actionPerformed(ActionEvent e)
-				 * Purpose: Event handler that resets all forms to their default state
-				 * Accepts: an ActionEvent with the event information
-				 * Returns: Void
-				 */
-					@Override
-					public void actionPerformed(ActionEvent e)
-					{
-						firstName.setText("");
-						lastName.setText("");
-						email.setText("");
-						activeCustomer.setSelected(false);
-						address.setText("");
-						address2.setText("");
-						district.setText("");
-						country.setSelectedIndex(0);
-						postalCode.setText("");
-						phone.setText(""); 
-						
-						//Set City back to "Select a Country"
-			    	city.removeAllItems();
-			    	DefaultComboBoxModel cityModel = new DefaultComboBoxModel(populateBlank());
-			    	city.setModel(cityModel);
-			    	
-					}
-				});
-		
-				rightPanel.add(addCustomer); 
-				rightPanel.add(resetForm);
-		
+		{	
+			/**
+			 * Method Name: actionPerformed(ActionEvent e)
+			 * Purpose: Event handler that resets all forms to their default state
+			 * Accepts: an ActionEvent with the event information
+			 * Returns: Void
+			 */
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				resetCustomerGUI();
+			}
+		});
+
+		rightPanel.add(addCustomer); 
+		rightPanel.add(resetForm);
+
 		//Add Panels to main Panel
 		this.add(leftPanel);
 		this.add(rightPanel);
-		
+
 	}
 
 	/**
@@ -157,53 +142,53 @@ public class AddCustomer extends JPanel implements SakilaTab
 	 * Accepts: void
 	 * Returns: a vector of 1 string 
 	 */	
-private Vector<String> populateBlank()
+	private Vector<String> populateBlank()
 	{
 		Vector<String> cities = new Vector<String>(1);
 		cities.add(0, "Select a Country");
 		return cities; 
 	}
 
-/**
- * Method Name: populateCountries()
- * Purpose: to populate the countries dropdown with countries in the database
- * Accepts: void
- * Returns: vector of country names
- */	
-private Vector<String> populateCountries()
+	/**
+	 * Method Name: populateCountries()
+	 * Purpose: to populate the countries drop down with countries in the database
+	 * Accepts: void
+	 * Returns: vector of country names
+	 */	
+	private Vector<String> populateCountries()
 	{
-	//Fetch list of countries and load them into countries combo box
+		//Fetch list of countries and load them into countries combo box
 		Vector<String> countries=home.controller.getCountries();
-		countries.add(0,"All");
+		countries.add(0,"Select a Country");
 		return countries;
 	}
 
-/**
- * Method Name: populateCities
- * Purpose:  once country has been selected, provide the cities for that country 
- * Accepts: the index number of the country selected
- * Returns: a string array of city names
- */	
-private String[] populateCities(int countryIndex)
+	/**
+	 * Method Name: populateCities
+	 * Purpose:  once country has been selected, provide the cities for that country 
+	 * Accepts: the index number of the country selected
+	 * Returns: a string array of city names
+	 */	
+	private String[] populateCities(int countryIndex)
 	{
 		//Fetch list of cities and load them into cities combo box
 		String[] cities=home.controller.getCities(countryIndex);
 		return cities;
 	}
 
-/**
- * Method Name: getDimensions
- * Purpose: Method from SakilaTab to tell TabPane what size this tab wants to be
- * Accepts: void
- * Returns: dimesion
- */	
+	/**
+	 * Method Name: getDimensions
+	 * Purpose: Method from SakilaTab to tell TabPane what size this tab wants to be
+	 * Accepts: void
+	 * Returns: dimesion
+	 */	
 	@Override
 	public Dimension getDimensions()
 	{
 		return new Dimension(this.width, this.height);
 	}
-	
-	
+
+
 	private class AddCustomerListener implements ActionListener
 	{
 
@@ -221,86 +206,82 @@ private String[] populateCities(int countryIndex)
 			//Variable Declarations
 			Vector<String> errorStrings = new Vector<String>();
 			Component firstOffender = null;
-			
+
 			//Customer Fields
-			String firstNameEntered, lastNameEntered, emailEntered;
-			int storeId, addressId; 
+			String firstNameEntered, lastNameEntered;
 			boolean activeEntered; 
-			LocalDateTime createDateEntered;
-			
+
 			//Address Fields
-			String addressEntered, address2Entered, districtEntered, phoneEntered, postalcodeEntered, cityNameEntered, countryNameEntered;
+			String addressEntered, districtEntered, phoneEntered, cityNameEntered, countryNameEntered;
 			int cityIdEntered = -1, countryIdEntered = -1;
-			//LocalDateTime lastUpdate -> already gets current timestamp
-			Blob position; 
-			
+
 			//Ensure a first name was entered
 			firstNameEntered = firstName.getText();
 			if(firstNameEntered.isEmpty())
 			{
 				errorStrings.add("Please enter a first name.");
-				
+
 				if(firstOffender == null)
 					firstOffender = firstName;
 			}
-			
+
 			//Ensure a last name was entered
 			lastNameEntered = lastName.getText();
 			if(lastNameEntered.isEmpty())
 			{
 				errorStrings.add("Please enter a last name.");
-				
+
 				if(firstOffender == null)
 					firstOffender = lastName;
 			}
-			
+
 			//Ensure a last name was entered
 			phoneEntered = phone.getText();
 			if(phoneEntered.isEmpty())
 			{
 				errorStrings.add("Please enter a phone number.");
-				
+
 				if(firstOffender == null)
 					firstOffender = phone;
 			}
-			
+
 			//Email can be null
-			
+
 			//Check if active customer 
 			activeEntered = activeCustomer.isSelected(); 
-				
+
 			//Ensure an address was entered
 			addressEntered = address.getText();
 			if(addressEntered.isEmpty())
 			{
 				errorStrings.add("Please enter an address.");
-				
+
 				if(firstOffender == null)
 					firstOffender = address;
 			}
-			
+
 			//address 2 can be null
-			
+
 			//Ensure a district was entered
 			districtEntered = district.getText();
 			if(addressEntered.isEmpty())
 			{
 				errorStrings.add("Please enter a district.");
-				
+
 				if(firstOffender == null)
 					firstOffender = district;
 			}
-			
+
 			//Postal can be nullable
-			
+
 			//Get selections from combo boxes
 			//cityIdEntered = Integer.parseInt((String)city.getSelectedItem());
 			cityNameEntered = (String) city.getSelectedItem();
-			
+
 			if(cityNameEntered.equals("") || cityNameEntered.equals("Select a Country"))				
 			{
 				errorStrings.add("Please choose a city.");
-				
+
 				if(firstOffender == null)
 					firstOffender = city;
 			}
@@ -309,14 +290,14 @@ private String[] populateCities(int countryIndex)
 			{
 				cityIdEntered = home.controller.GetCityIdByName(cityNameEntered);
 			}
-			
+
 			//countryIdEntered = Integer.parseInt((String)country.getSelectedItem());
 			countryNameEntered = (String) country.getSelectedItem(); 
-			
+
 			if(countryNameEntered.equals("") || countryNameEntered.equals("All"))				
 			{
 				errorStrings.add("Please choose a country.");
-				
+
 				if(firstOffender == null)
 					firstOffender = country;
 			}
@@ -325,7 +306,7 @@ private String[] populateCities(int countryIndex)
 			{
 				countryIdEntered = home.controller.GetCountryIdByName(countryNameEntered);
 			}
-			
+
 			//If no errors, add first the address
 			//FK needed for city_Id
 			if(errorStrings.size() == 0)
@@ -344,26 +325,12 @@ private String[] populateCities(int countryIndex)
 						districtEntered,
 						phoneEntered,
 						postalCode.getText());
-				
+
 				//Inform user of result of the add
 				JOptionPane.showMessageDialog(home, resultString);
-				
+
 				//call to clear all dialogs 
-				firstName.setText("");
-				lastName.setText("");
-				email.setText("");
-				activeCustomer.setSelected(false);
-				address.setText("");
-				address2.setText("");
-				district.setText("");
-				country.setSelectedIndex(0);
-				postalCode.setText("");
-				phone.setText(""); 
-				
-				//Set City back to "Select a Country"
-	    	city.removeAllItems();
-	    	DefaultComboBoxModel cityModel = new DefaultComboBoxModel(populateBlank());
-	    	city.setModel(cityModel);
+				resetCustomerGUI();
 				
 			}
 			else
@@ -373,16 +340,16 @@ private String[] populateCities(int countryIndex)
 				{
 					errorString += errorStrings.elementAt(i) + "\n";
 				}
-				
+
 				//If there were errors, don't add and show what went wrong, and set focus to first failed field
 				JOptionPane.showMessageDialog(null, errorString, "Form Incomplete", JOptionPane.ERROR_MESSAGE);
-				
+
 				//Set focus to the first field that was incorrect
 				firstOffender.requestFocus();
 			}
 		}
 	}
-	
+
 	/**
 	 * Method Name: MyItemListener
 	 * Purpose: To register when a change has been made on the country JComboBox
@@ -390,24 +357,49 @@ private String[] populateCities(int countryIndex)
 	 * Returns: void
 	 */	
 	class MyItemListener implements ItemListener {
-	  // This method is called only if a new item has been selected.
-	  public void itemStateChanged(ItemEvent evt) {
-	    JComboBox cb = (JComboBox) evt.getSource();
+		// This method is called only if a new item has been selected.
+		public void itemStateChanged(ItemEvent evt) {
+			JComboBox cb = (JComboBox) evt.getSource();
 
-	    Object item = evt.getItem();
+			Object item = evt.getItem();
 
-	    if (evt.getStateChange() == ItemEvent.SELECTED) {
-	      // Item was just selected
-	    	city.removeAllItems();
-	    	DefaultComboBoxModel cityModel = new DefaultComboBoxModel(populateCities(country.getSelectedIndex()));
-	    	city.setModel(cityModel);
-	    	
-	    } else if (evt.getStateChange() == ItemEvent.DESELECTED) {
-	      // Item is no longer selected
-	    }
-	  }
+			if (evt.getStateChange() == ItemEvent.SELECTED) {
+				// Item was just selected
+				city.removeAllItems();
+				DefaultComboBoxModel cityModel = new DefaultComboBoxModel(populateCities(country.getSelectedIndex()));
+				city.setModel(cityModel);
+
+			} 
+		}
+	}
+
+	/**
+	 * Method Name: ResetCustomerGUI
+	 * Purpose:  Sets the add customer GUI interface back to empty 
+	 * Accepts: null
+	 * Returns: null
+	 */	
+	private void resetCustomerGUI()
+	{
+		//call to clear all dialogs 
+		firstName.setText("");
+		lastName.setText("");
+		email.setText("");
+		activeCustomer.setSelected(false);
+		address.setText("");
+		address2.setText("");
+		district.setText("");
+		country.setSelectedIndex(0);
+		postalCode.setText("");
+		phone.setText(""); 
+
+		//Set City back to "Select a Country"
+		city.removeAllItems();
+		DefaultComboBoxModel cityModel = new DefaultComboBoxModel(populateBlank());
+		city.setModel(cityModel);
+
 	}
 
 }
-	
+
 

@@ -10,8 +10,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Vector;
-
-import javax.swing.JComboBox;
 import javax.swing.table.TableModel;
 
 /**
@@ -49,10 +47,10 @@ public class SakilaController
 			//Close it in reverse order
 			if(result!=null)
 				result.close();
-			
+
 			if(statement!=null)
 				statement.close();
-			
+
 			if(prepStatement!=null)
 				statement.close();
 
@@ -63,7 +61,7 @@ public class SakilaController
 			System.out.println("SQL Exception caught while closing database objects: " + ex.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Method Name: getStores()
 	 * Purpose: Retrieves a vector of all the stores
@@ -80,7 +78,7 @@ public class SakilaController
 			statement=connection.createStatement();
 			result= statement.executeQuery("SELECT store_id\r\n" + 
 					"FROM store;");
-			
+
 			//Load into vector
 			Vector<String> stores=new Vector<String>();
 			while(result.next()) 
@@ -89,7 +87,7 @@ public class SakilaController
 			}
 
 			return stores;
-			
+
 		}
 		catch(SQLException ex)
 		{
@@ -130,7 +128,7 @@ public class SakilaController
 			{
 				categories.add(result.getString("name"));
 			}
-			
+
 			return categories;
 		}
 		catch(SQLException ex)
@@ -147,8 +145,8 @@ public class SakilaController
 		}
 		return null;
 	}
-	
-	
+
+
 	/**
 	 * Method Name: getCities()
 	 * Purpose: Retrieves a vector of all the cities
@@ -168,16 +166,14 @@ public class SakilaController
 			//Load into vector
 			Vector<String>	cityV = new Vector<String>();
 			cityV.add("Select a city");
-			int i = 0; 
 			while(result.next()) 
 			{
 				cityV.add(result.getString("city"));
-				i++;
 			}
-			
+
 			Object[] objArray = cityV.toArray(); 
 			String[] cities = Arrays.copyOf(objArray, objArray.length, String[].class); 
-			
+
 			return cities;
 		}
 		catch(SQLException ex)
@@ -336,7 +332,7 @@ public class SakilaController
 		//Error occurred
 		return null;
 	}
-	
+
 	/**
 	 * Method Name: getActorIdByName(String firstName, String lastName)
 	 * Purpose: retrieves the integer id of actor with given name from database
@@ -349,19 +345,19 @@ public class SakilaController
 		//Uses new objects because other functions with open objects call this
 		PreparedStatement getIdStatement = null;
 		ResultSet results = null;
-		
+
 		try
 		{
 			//Use new objects because a statement can still be open while calling this
 			getIdStatement = connection.prepareStatement(
 					"SELECT actor_id FROM actor WHERE last_name = ? AND first_name = ?;"
-			);
-			
+					);
+
 			getIdStatement.setString(1, lastName);
 			getIdStatement.setString(2, firstName);
-			
+
 			results = getIdStatement.executeQuery();
-			
+
 			//If a value retrieved, get 
 			if(results.next())
 				id = results.getInt(1);
@@ -376,7 +372,7 @@ public class SakilaController
 			{
 				if(results != null)
 					results.close();
-				
+
 				if(getIdStatement != null)
 					getIdStatement.close();			
 			} 
@@ -385,10 +381,10 @@ public class SakilaController
 				System.out.println("SQL Exception caught: " + ex.getMessage());
 			}	
 		}
-		
+
 		return id;
 	}
-	
+
 	/**
 	 * Method Name: getFilmIdByTitle(String title)
 	 * Purpose: retrieves the integer id of a film with given title from database
@@ -405,7 +401,7 @@ public class SakilaController
 			getIdStatement = connection.prepareStatement("SELECT film_id FROM film WHERE title = ?;");
 			getIdStatement.setString(1, title);
 			results = getIdStatement.executeQuery();
-			
+
 			//If a value retrieved, get 
 			if(results.next())
 				id = results.getInt(1);
@@ -420,7 +416,7 @@ public class SakilaController
 			{
 				if(results != null)
 					results.close();
-				
+
 				if(getIdStatement != null)
 					getIdStatement.close();
 			} 
@@ -429,10 +425,10 @@ public class SakilaController
 				System.out.println("SQL Exception caught: " + ex.getMessage());
 			}
 		}
-		
+
 		return id;
 	}
-	
+
 	/**
 	 * Method Name: addActor(String firstName, String lastName, String movieTitle)
 	 * Purpose: Adds an actor the the database in a transaction format, as well as an entry
@@ -453,28 +449,28 @@ public class SakilaController
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
 				Date date = new Date();
 				String lastUpdate = sdf.format(date.getTime());
-				
+
 				//Begin transaction
 				connection.setAutoCommit(false);
-				
+
 				//Add the actor to the database
 				prepStatement = connection.prepareStatement(
 						"INSERT INTO actor (first_name, last_name, last_update) VALUES (?, ?, ?);"
-				);
-				
+						);
+
 				prepStatement.setString(1, firstName);
 				prepStatement.setString(2, lastName);
 				prepStatement.setString(3, lastUpdate);
-				
+
 				int addActorReturnValue = prepStatement.executeUpdate();
-				
+
 				//If a movie title provided, and the actor insert worked, add to the junction table
 				if(movieTitle.length() > 0 && addActorReturnValue > 0)
 				{
 					//Get ids to connect in the junction table
 					int actorId = getActorIdByName(firstName, lastName);
 					int filmId = getFilmIdByTitle(movieTitle);
-					
+
 					//Ensure both ids were correctly found
 					if(actorId != -1 && filmId != -1)
 					{
@@ -482,8 +478,8 @@ public class SakilaController
 						//Add to the junction table
 						int addJunctionReturnValue = statement.executeUpdate(
 								"INSERT INTO film_actor VALUES (" + actorId + ", " + filmId + ", '" + lastUpdate +"');"
-						);
-						
+								);
+
 						//If it worked, commit, otherwise roll back the whole transaction
 						if(addJunctionReturnValue > 0)
 						{
@@ -507,7 +503,7 @@ public class SakilaController
 			{
 				return "Actor already exists in the database.";
 			}
-			
+
 		}
 		catch(SQLException ex)
 		{
@@ -531,7 +527,7 @@ public class SakilaController
 				errorMessage += " SQL Exception: " + ex.getMessage();
 			}
 		}
-		
+
 		return errorMessage;
 	}
 
@@ -550,7 +546,7 @@ public class SakilaController
 		{
 			createConnection();
 			statement = connection.createStatement();
-			
+
 			//Select all titles
 			result = statement.executeQuery("SELECT title FROM film");
 
@@ -573,7 +569,7 @@ public class SakilaController
 
 		return allFilms;
 	}
-		
+
 	/**
 	 * Method Name: getLanguages()
 	 * Purpose: Retrieves a list of all languages in the database
@@ -582,33 +578,33 @@ public class SakilaController
 	 */
 	public Vector<String> getLanguages()
 	{
-			Vector<String> languages = new Vector<String>();
-			try
-			{
-				createConnection();
-				statement = connection.createStatement();
-				result = statement.executeQuery("SELECT name FROM language;");
+		Vector<String> languages = new Vector<String>();
+		try
+		{
+			createConnection();
+			statement = connection.createStatement();
+			result = statement.executeQuery("SELECT name FROM language;");
 
-				while(result.next())
-				{
-					//Add language name to the vector
-					languages.add(result.getString(1));
-				}
-
-				return languages;
-			}
-			catch (SQLException ex)
+			while(result.next())
 			{
-				System.out.println("SQL Exception caught: " + ex.getMessage());
-			}
-			finally
-			{
-				closeConnection();
+				//Add language name to the vector
+				languages.add(result.getString(1));
 			}
 
 			return languages;
+		}
+		catch (SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		finally
+		{
+			closeConnection();
+		}
+
+		return languages;
 	}
-	
+
 	/**
 	 * Method Name: getActors()
 	 * Purpose: Retrieves a list of all actors in the database
@@ -645,7 +641,7 @@ public class SakilaController
 
 		return actors;
 	}
-	
+
 	/**
 	 * Method Name: getLanguageId(String language)
 	 * Purpose: Retrieves the id of the given language from the database
@@ -661,8 +657,8 @@ public class SakilaController
 			statement = connection.createStatement();
 			result = statement.executeQuery(
 					"SELECT language_id FROM language WHERE name = '" + language + "';"
-			);
-			
+					);
+
 			//If a value retrieved, get 
 			if(result.next())
 				id = result.getInt(1);
@@ -675,7 +671,7 @@ public class SakilaController
 		{
 			closeConnection();
 		}
-		
+
 		return id;
 	}
 
@@ -710,17 +706,17 @@ public class SakilaController
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
 				Date date = new Date();
 				String lastUpdate = sdf.format(date.getTime());
-				
+
 				//Begin transaction
 				connection.setAutoCommit(false);
-				
+
 				//Create and populate prepared statement
 				String sqlFilmInsert = 
 						"INSERT INTO film (title, description, release_year, language_id, rental_duration, rental_rate, "
-						+ "length, replacement_cost, rating, special_features, last_update) "
-						+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+								+ "length, replacement_cost, rating, special_features, last_update) "
+								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 				prepStatement = connection.prepareStatement(sqlFilmInsert);
-				
+
 				int prepVariableIndex = 1;
 				prepStatement.setString(prepVariableIndex++,  title);
 				prepStatement.setString(prepVariableIndex++,  description);
@@ -733,9 +729,9 @@ public class SakilaController
 				prepStatement.setString(prepVariableIndex++, rating);
 				prepStatement.setString(prepVariableIndex++, specialFeatures);
 				prepStatement.setString(prepVariableIndex++, lastUpdate);
-				
+
 				int addFilmReturnValue = prepStatement.executeUpdate();
-				
+
 				//If film insert worked, add to the junction table
 				if(addFilmReturnValue > 0)
 				{
@@ -747,21 +743,21 @@ public class SakilaController
 						int commaIndex = actors[i].indexOf(',');
 						String firstName = actors[i].substring(commaIndex + 2);
 						String lastName = actors[i].substring(0, commaIndex);
-						
+
 						int actorId = getActorIdByName(firstName, lastName);
 						if(actorId == -1)
 						{
 							return "Film not added, actor " + firstName + " " + lastName + " does not exist.";
 						}
-						
+
 						statement = connection.createStatement();
 						String sqlString = "INSERT INTO film_actor VALUES (" + actorId + ", " + filmId + ", '" + lastUpdate + "');";
 						int addJunctionReturnValue = statement.executeUpdate(sqlString);
-						
+
 						if(addJunctionReturnValue == -1)
 							allJunctionInsertsWorked = false;
 					}
-					
+
 					//Ensure all adds worked correctly
 					if(allJunctionInsertsWorked)
 					{
@@ -774,7 +770,7 @@ public class SakilaController
 			{
 				return "Film already exists in the database.";
 			}
-			
+
 		}
 		catch(SQLException ex)
 		{
@@ -783,7 +779,7 @@ public class SakilaController
 		catch(Exception ex)
 		{
 			errorMessage += " Exception: " + ex.getMessage();
-	
+
 		}
 		finally
 		{
@@ -800,7 +796,7 @@ public class SakilaController
 				errorMessage += " SQL Exception: " + ex.getMessage();
 			}
 		}
-		
+
 		return errorMessage;
 	}
 
@@ -827,7 +823,7 @@ public class SakilaController
 			{
 				countries.add(result.getString("country"));
 			}
-			
+
 			return countries;
 		}
 		catch(SQLException ex)
@@ -844,8 +840,8 @@ public class SakilaController
 		}
 		return null;
 	}
-	
-	
+
+
 	/**
 	 * Method Name: addCustomer()
 	 * Purpose: Adds an customer to the database as well as the connections between it and its address tables
@@ -869,72 +865,77 @@ public class SakilaController
 			String countryName, int countryId, String district, String phone, String postalCode)
 	{
 		String errorMessage = "Customer not added.";
-		
+		int addCustomerReturnValue = 0;
+
 		try 
 		{ 
 			createConnection(); 
-	  	connection.setAutoCommit(false);
-		  
-		  //Check to see if the customer already exists 
-		  if(getCustomerByFullName(firstName, lastName) == -1) //if it doesn't exist, add it 
-		  {
-		  	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss"); 
-		  	Date date = new Date(); 
-		  	String lastUpdate = sdf.format(date.getTime());
-		  
-		  	//Create and populate prepared statement 
-		  	String sqlAddressInsert = "INSERT INTO address (address, address2, city_id, district, last_update, "
-		  			+ "location, phone, postal_code) "
-		  			+ "VALUES (?, ?, ?, ?, ?, ST_GeomFromText('POINT(0 0)'), ?, ?);"; 
-		  
-		  	prepStatement = connection.prepareStatement(sqlAddressInsert);
-		  
-			  prepStatement.setString(1, address);
-			  prepStatement.setString(2, address2);
-			  prepStatement.setInt(3, cityId);
-			  prepStatement.setString(4, district);
-			  prepStatement.setString(5, lastUpdate);
-			  prepStatement.setString(6, phone);
-			  prepStatement.setString(7, postalCode);
-		  
-			  int addAddressReturnValue = prepStatement.executeUpdate();
-			  
-			  //If address added successfully, then we can add the customer
-			  if(addAddressReturnValue > 0)
-			  {
-		  	
-			  	//Get the ID of the address added 
-			  	int addressId = getAddressId(address, cityId, district, phone, postalCode); 
-			  	
-			  	String sqlCustomerInsert = "INSERT INTO customer (address_id, create_date, email, first_name, "
-			 		   + "last_name, store_id) "
-					   + "VALUES (?, ?, ?, ?, ?, 1);"; 
-			  	
-			  	 prepStatement = connection.prepareStatement(sqlCustomerInsert);
-			  	
-			  	 prepStatement.setInt(1, addressId);
-					 prepStatement.setString(2, lastUpdate);
-					 prepStatement.setString(3, email);
-					 prepStatement.setString(4, firstName);
-					 prepStatement.setString(5, lastName);
-		
-					 int addCustomerReturnValue = prepStatement.executeUpdate();
-			  }
-		  
-			  return "Customer added successfully!"; 
-		  
-		  }  
-		  //Customer already existed in database so it was not added 
+			connection.setAutoCommit(false);
+
+			//Check to see if the customer already exists 
+			if(getCustomerByFullName(firstName, lastName) == -1) //if it doesn't exist, add it 
+			{
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss"); 
+				Date date = new Date(); 
+				String lastUpdate = sdf.format(date.getTime());
+
+				//Create and populate prepared statement 
+				String sqlAddressInsert = "INSERT INTO address (address, address2, city_id, district, last_update, "
+						+ "location, phone, postal_code) "
+						+ "VALUES (?, ?, ?, ?, ?, ST_GeomFromText('POINT(0 0)'), ?, ?);"; 
+
+				prepStatement = connection.prepareStatement(sqlAddressInsert);
+
+				prepStatement.setString(1, address);
+				prepStatement.setString(2, address2);
+				prepStatement.setInt(3, cityId);
+				prepStatement.setString(4, district);
+				prepStatement.setString(5, lastUpdate);
+				prepStatement.setString(6, phone);
+				prepStatement.setString(7, postalCode);
+
+				int addAddressReturnValue = prepStatement.executeUpdate();
+
+				//If address added successfully, then we can add the customer
+				if(addAddressReturnValue > 0)
+				{
+
+					//Get the ID of the address added 
+					int addressId = getAddressId(address, cityId, district, phone, postalCode); 
+
+					String sqlCustomerInsert = "INSERT INTO customer (address_id, create_date, email, first_name, "
+							+ "last_name, store_id) "
+							+ "VALUES (?, ?, ?, ?, ?, 1);"; 
+
+					prepStatement = connection.prepareStatement(sqlCustomerInsert);
+
+					prepStatement.setInt(1, addressId);
+					prepStatement.setString(2, lastUpdate);
+					prepStatement.setString(3, email);
+					prepStatement.setString(4, firstName);
+					prepStatement.setString(5, lastName);
+
+					addCustomerReturnValue = prepStatement.executeUpdate();
+				}
+
+				if(addCustomerReturnValue > 0) 
+				{
+					connection.commit();
+					return "Customer added successfully!"; 
+				}
+
+			}  
+			//Customer already existed in database so it was not added 
 			else 
 			{ 
 				return "Customer already exists in the database.";
 			}
-		  
+
 		}
 		catch(SQLException ex) 
 		{ 
 			errorMessage += " SQL Exception: " + ex.getMessage(); 
-	  } 
+		} 
 		finally 
 		{ 
 			//Do a roll back in case it failed. If it didn't, will notundo the commit 
@@ -949,11 +950,11 @@ public class SakilaController
 				errorMessage += " SQL Exception: " + ex.getMessage(); 
 			} 
 		}
-		
-	return errorMessage;
-}
 
-	
+		return errorMessage;
+	}
+
+
 	/**
 	 * Method Name: getAddressId()
 	 * Purpose: To return the Id of the address added 
@@ -964,86 +965,28 @@ public class SakilaController
 	 *          postalCode - customer postal code
 	 * Returns: An integer representing the address id 
 	 */
-private int getAddressId(String address, int cityId, String district, String phone, String postalCode)
-{
-	int id = -1;
-	//Uses new objects because other functions with open objects call this
-	PreparedStatement getIdStatement = null;
-	ResultSet results = null;
-	
-	try
+	private int getAddressId(String address, int cityId, String district, String phone, String postalCode)
 	{
-		//Use new objects because a statement can still be open while calling this
-		getIdStatement = connection.prepareStatement(
-				"SELECT address_id FROM address WHERE address = ? AND city_id = ? AND district = ? AND phone = ? AND postal_code = ?;"
-		);
-		
-		getIdStatement.setString(1, address);
-		getIdStatement.setInt(2, cityId);
-		getIdStatement.setString(3, district);
-		getIdStatement.setString(4, phone);
-		getIdStatement.setString(5, postalCode);
-		
-		results = getIdStatement.executeQuery();
-		
-		//If a value retrieved, get 
-		if(results.next())
-			id = results.getInt(1);
-	}
-	catch(SQLException ex)
-	{
-		System.out.println("SQL Exception caught: " + ex.getMessage());
-	}
-	finally 
-	{
-		try
-		{
-			if(results != null)
-				results.close();
-			
-			if(getIdStatement != null)
-				getIdStatement.close();			
-			
-			//connection.close();
-		} 
-		catch(SQLException ex)
-		{
-			System.out.println("SQL Exception caught: " + ex.getMessage());
-		}	
-	}
-	
-	return id;
-	
-}
-
-/**
- * Method Name: getActorIdByName(String firstName, String lastName)
- * Purpose: retrieves the integer id of actor with given name from database
- * Accepts: a String first name, a String last name
- * Returns: the integer id of the actor in the database or -1 if not found
- */
-	public int getCustomerByFullName(String firstName, String lastName)
-	{
-	
 		int id = -1;
 		//Uses new objects because other functions with open objects call this
 		PreparedStatement getIdStatement = null;
 		ResultSet results = null;
-		
+
 		try
 		{
-			//createConnection(); 
-			
 			//Use new objects because a statement can still be open while calling this
 			getIdStatement = connection.prepareStatement(
-					"SELECT customer_id FROM customer WHERE last_name = ? AND first_name = ?;"
-			);
-			
-			getIdStatement.setString(1, lastName);
-			getIdStatement.setString(2, firstName);
-			
+					"SELECT address_id FROM address WHERE address = ? AND city_id = ? AND district = ? AND phone = ? AND postal_code = ?;"
+					);
+
+			getIdStatement.setString(1, address);
+			getIdStatement.setInt(2, cityId);
+			getIdStatement.setString(3, district);
+			getIdStatement.setString(4, phone);
+			getIdStatement.setString(5, postalCode);
+
 			results = getIdStatement.executeQuery();
-			
+
 			//If a value retrieved, get 
 			if(results.next())
 				id = results.getInt(1);
@@ -1058,10 +1001,67 @@ private int getAddressId(String address, int cityId, String district, String pho
 			{
 				if(results != null)
 					results.close();
-				
+
+				if(getIdStatement != null)
+					getIdStatement.close();		
+
+			} 
+			catch(SQLException ex)
+			{
+				System.out.println("SQL Exception caught: " + ex.getMessage());
+			}	
+			
+		}
+
+		return id;
+		
+	}
+
+	/**
+	 * Method Name: getActorIdByName(String firstName, String lastName)
+	 * Purpose: retrieves the integer id of actor with given name from database
+	 * Accepts: a String first name, a String last name
+	 * Returns: the integer id of the actor in the database or -1 if not found
+	 */
+	public int getCustomerByFullName(String firstName, String lastName)
+	{
+
+		int id = -1;
+		//Uses new objects because other functions with open objects call this
+		PreparedStatement getIdStatement = null;
+		ResultSet results = null;
+
+		try
+		{
+
+			//Use new objects because a statement can still be open while calling this
+			getIdStatement = connection.prepareStatement(
+					"SELECT customer_id FROM customer WHERE last_name = ? AND first_name = ?;"
+					);
+
+			getIdStatement.setString(1, lastName);
+			getIdStatement.setString(2, firstName);
+
+			results = getIdStatement.executeQuery();
+
+			//If a value retrieved, get 
+			if(results.next())
+				id = results.getInt(1);
+		}
+		catch(SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		finally 
+		{
+			try
+			{
+				if(results != null)
+					results.close();
+
 				if(getIdStatement != null)
 					getIdStatement.close();			
-				
+
 				//connection.close();
 			} 
 			catch(SQLException ex)
@@ -1069,7 +1069,7 @@ private int getAddressId(String address, int cityId, String district, String pho
 				System.out.println("SQL Exception caught: " + ex.getMessage());
 			}	
 		}
-		
+
 		return id;
 	}
 
@@ -1080,107 +1080,107 @@ private int getAddressId(String address, int cityId, String district, String pho
 	 * Accepts: a String for city name
 	 * Returns: the integer id of the city in the database or -1 if not found
 	 */	
-public int GetCityIdByName(String cityNameEntered)
-{
-	int id = -1;
-	//Uses new objects because other functions with open objects call this
-	PreparedStatement getIdStatement = null;
-	ResultSet results = null;
-	
-	try
+	public int GetCityIdByName(String cityNameEntered)
 	{
-		createConnection(); 
-		
-		//Use new objects because a statement can still be open while calling this
-		getIdStatement = connection.prepareStatement(
-				"SELECT city_id FROM city WHERE city = ?;"
-		);
-		
-		getIdStatement.setString(1, cityNameEntered);
-		
-		results = getIdStatement.executeQuery();
-		
-		//If a value retrieved, get 
-		if(results.next())
-			id = results.getInt(1);
-	}
-	catch(SQLException ex)
-	{
-		System.out.println("SQL Exception caught: " + ex.getMessage());
-	}
-	finally 
-	{
+		int id = -1;
+		//Uses new objects because other functions with open objects call this
+		PreparedStatement getIdStatement = null;
+		ResultSet results = null;
+
 		try
 		{
-			if(results != null)
-				results.close();
-			
-			if(getIdStatement != null)
-				getIdStatement.close();		
-			
-			connection.close();
-		} 
+			createConnection(); 
+
+			//Use new objects because a statement can still be open while calling this
+			getIdStatement = connection.prepareStatement(
+					"SELECT city_id FROM city WHERE city = ?;"
+					);
+
+			getIdStatement.setString(1, cityNameEntered);
+
+			results = getIdStatement.executeQuery();
+
+			//If a value retrieved, get 
+			if(results.next())
+				id = results.getInt(1);
+		}
 		catch(SQLException ex)
 		{
 			System.out.println("SQL Exception caught: " + ex.getMessage());
-		}	
-	}
-	
-	return id;
-	
+		}
+		finally 
+		{
+			try
+			{
+				if(results != null)
+					results.close();
+
+				if(getIdStatement != null)
+					getIdStatement.close();		
+
+				connection.close();
+			} 
+			catch(SQLException ex)
+			{
+				System.out.println("SQL Exception caught: " + ex.getMessage());
+			}	
+		}
+
+		return id;
+
 	}
 
-/**
- * Method Name: GetCountryIdByName
- * Purpose: retrieves the integer id of the country with given country name from database
- * Accepts: a String for country name
- * Returns: the integer id of the country in the database or -1 if not found
- */	
-public int GetCountryIdByName(String countryNameEntered)
-{
-	int id = -1;
-	//Uses new objects because other functions with open objects call this
-	PreparedStatement getIdStatement = null;
-	ResultSet results = null;
-	
-	try
+	/**
+	 * Method Name: GetCountryIdByName
+	 * Purpose: retrieves the integer id of the country with given country name from database
+	 * Accepts: a String for country name
+	 * Returns: the integer id of the country in the database or -1 if not found
+	 */	
+	public int GetCountryIdByName(String countryNameEntered)
 	{
-		createConnection(); 
-		
-		//Use new objects because a statement can still be open while calling this
-		getIdStatement = connection.prepareStatement(
-				"SELECT country_id FROM country WHERE country = ?;"
-		);
-		
-		getIdStatement.setString(1, countryNameEntered);
-		
-		results = getIdStatement.executeQuery();
-		
-		//If a value retrieved, get 
-		if(results.next())
-			id = results.getInt(1);
-	}
-	catch(SQLException ex)
-	{
-		System.out.println("SQL Exception caught: " + ex.getMessage());
-	}
-	finally 
-	{
+		int id = -1;
+		//Uses new objects because other functions with open objects call this
+		PreparedStatement getIdStatement = null;
+		ResultSet results = null;
+
 		try
 		{
-			if(results != null)
-				results.close();
-			
-			if(getIdStatement != null)
-				getIdStatement.close();	
-			
-			connection.close();
-		} 
+			createConnection(); 
+
+			//Use new objects because a statement can still be open while calling this
+			getIdStatement = connection.prepareStatement(
+					"SELECT country_id FROM country WHERE country = ?;"
+					);
+
+			getIdStatement.setString(1, countryNameEntered);
+
+			results = getIdStatement.executeQuery();
+
+			//If a value retrieved, get 
+			if(results.next())
+				id = results.getInt(1);
+		}
 		catch(SQLException ex)
 		{
 			System.out.println("SQL Exception caught: " + ex.getMessage());
-		}	
+		}
+		finally 
+		{
+			try
+			{
+				if(results != null)
+					results.close();
+
+				if(getIdStatement != null)
+					getIdStatement.close();	
+
+				connection.close();
+			} 
+			catch(SQLException ex)
+			{
+				System.out.println("SQL Exception caught: " + ex.getMessage());
+			}	
+		}
+		return id;	
 	}
-	return id;	
-}
 }
