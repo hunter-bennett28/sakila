@@ -36,7 +36,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 	{
 		super(new GridLayout(1, 2, 10, 10));
 		this.home = home;
-		this.width = home.WINDOW_WIDTH + 200;;
+		this.width = home.WINDOW_WIDTH;
 		this.height = 300;
 		thisPanel = this;
 

@@ -27,7 +27,7 @@ public class CustomerReport extends JPanel implements SakilaTab {
 
 		//Set up window
 		this.home = home;
-		this.width = 700;
+		this.width = home.WINDOW_WIDTH;
 		this.height = 250;
 
 		//Construct window

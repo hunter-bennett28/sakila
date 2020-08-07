@@ -32,7 +32,7 @@ public class AddFilm extends JPanel implements SakilaTab
 		//Boiler plate
 		super(new GridLayout(1, 2, 10, 10));
 		this.home = home;
-		this.width = home.WINDOW_WIDTH + 220;
+		this.width = home.WINDOW_WIDTH + 20;
 		this.height = 400;
 		thisPanel = this;
 		

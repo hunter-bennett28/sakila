@@ -15,7 +15,7 @@ import javax.swing.event.ChangeListener;
 
 public class SakilaHome extends JFrame
 {
-	final int WINDOW_WIDTH = 600;
+	final int WINDOW_WIDTH = 800;
 	final int WINDOW_HEIGHT = 400;
 	SakilaController controller;
 
