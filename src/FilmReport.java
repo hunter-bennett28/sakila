@@ -1,9 +1,10 @@
 /**
  * Name: FilmReport.java
- * Author: Connor Black
+ * Coder: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
  * Date: Jul. 22, 2020
  * Desc: This reports films based on a given search criteria 
  */
+
 import javax.swing.*;
 import javax.swing.table.TableModel;
 import java.awt.*;

@@ -1,18 +1,14 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.util.Vector;
-import java.sql.Blob;
-
-import javax.swing.*;
-
 /**
  * Program Name: AddCustomer.java
  * Purpose: GUI Tab for adding a new Customer to the database
- * Coder: Taylor DesRoches
+ * Coder: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
  * Date: Aug. 4, 2020
  */
+
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Vector;
+import javax.swing.*;
 
 public class AddCustomer extends JPanel implements SakilaTab
 {
@@ -60,17 +56,8 @@ public class AddCustomer extends JPanel implements SakilaTab
 		leftPanel.add(new JLabel("Address:", JLabel.RIGHT));
 		address = new JTextField(); 
 		leftPanel.add(address);
-
-		//District Row
-		leftPanel.add(new JLabel("District:", JLabel.RIGHT));
-		district = new JTextField(); 
-		leftPanel.add(district);
-
-		//Rental Duration Row
-		leftPanel.add(new JLabel("Postal Code:", JLabel.RIGHT));
-		postalCode = new JTextField();
-		leftPanel.add(postalCode);
-
+		
+		//Country Row
 		leftPanel.add(new JLabel("Country:", JLabel.RIGHT));
 		country = new JComboBox<String>(populateCountries());
 		leftPanel.add(country);
@@ -78,10 +65,15 @@ public class AddCustomer extends JPanel implements SakilaTab
 		MyItemListener actionListener = new MyItemListener();
 		country.addItemListener(actionListener);
 
-		//Customer Buttons Row
-		addCustomer = new JButton("Add Customer");
-		addCustomer.addActionListener(new AddCustomerListener());
-
+		//District Row
+		leftPanel.add(new JLabel("District:", JLabel.RIGHT));
+		district = new JTextField(); 
+		leftPanel.add(district);
+		
+		//Phone Number Row
+		leftPanel.add(new JLabel("Phone Number:", JLabel.RIGHT));
+		phone = new JTextField();
+		leftPanel.add(phone);
 
 		/* Set up right panel */
 
@@ -104,13 +96,16 @@ public class AddCustomer extends JPanel implements SakilaTab
 		rightPanel.add(new JLabel("City:", JLabel.RIGHT));
 		city = new JComboBox<String>(populateBlank());
 		rightPanel.add(city);
+		
+		//Postal Code Row
+		rightPanel.add(new JLabel("Postal Code:", JLabel.RIGHT));
+		postalCode = new JTextField();
+		rightPanel.add(postalCode);
 
-		//Phone Number Row
-		rightPanel.add(new JLabel("Phone Number:", JLabel.RIGHT));
-		phone = new JTextField();
-		rightPanel.add(phone);
-
-		//Reset Buttons Row
+		//Customer Buttons Row
+		addCustomer = new JButton("Add Customer");
+		addCustomer.addActionListener(new AddCustomerListener());
+		
 		resetForm = new JButton("Reset");
 		resetForm.addActionListener(new ActionListener()
 		{	
@@ -158,7 +153,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 	private Vector<String> populateCountries()
 	{
 		//Fetch list of countries and load them into countries combo box
-		Vector<String> countries=home.controller.getCountries();
+		Vector<String> countries = home.controller.getCountries();
 		countries.add(0,"Select a Country");
 		return countries;
 	}
@@ -172,7 +167,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 	private String[] populateCities(int countryIndex)
 	{
 		//Fetch list of cities and load them into cities combo box
-		String[] cities=home.controller.getCities(countryIndex);
+		String[] cities = home.controller.getCities(countryIndex);
 		return cities;
 	}
 
@@ -180,7 +175,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 	 * Method Name: getDimensions
 	 * Purpose: Method from SakilaTab to tell TabPane what size this tab wants to be
 	 * Accepts: void
-	 * Returns: dimesion
+	 * Returns: dimension
 	 */	
 	@Override
 	public Dimension getDimensions()
@@ -235,16 +230,6 @@ public class AddCustomer extends JPanel implements SakilaTab
 					firstOffender = lastName;
 			}
 
-			//Ensure a last name was entered
-			phoneEntered = phone.getText();
-			if(phoneEntered.isEmpty())
-			{
-				errorStrings.add("Please enter a phone number.");
-
-				if(firstOffender == null)
-					firstOffender = phone;
-			}
-
 			//Email can be null
 
 			//Check if active customer 
@@ -262,6 +247,35 @@ public class AddCustomer extends JPanel implements SakilaTab
 
 			//address 2 can be null
 
+			countryNameEntered = (String) country.getSelectedItem(); 
+			if(country.getSelectedIndex() == 0)				
+			{
+				errorStrings.add("Please choose a country.");
+
+				if(firstOffender == null)
+					firstOffender = country;
+			}
+			//Get the country ID
+			else
+			{
+				countryIdEntered = home.controller.getCountryIdByName(countryNameEntered);
+			}
+			
+			//Get selections from combo boxes
+			cityNameEntered = (String) city.getSelectedItem();
+			if(city.getSelectedIndex() == 0) //if blank or prompt selected, incorrect				
+			{
+				errorStrings.add("Please choose a city.");
+
+				if(firstOffender == null)
+					firstOffender = city;
+			}
+			//Get the City ID
+			else
+			{
+				cityIdEntered = home.controller.getCityIdByName(cityNameEntered, countryIdEntered);
+			}
+			
 			//Ensure a district was entered
 			districtEntered = district.getText();
 			if(addressEntered.isEmpty())
@@ -272,39 +286,16 @@ public class AddCustomer extends JPanel implements SakilaTab
 					firstOffender = district;
 			}
 
-			//Postal can be nullable
-
-			//Get selections from combo boxes
-			//cityIdEntered = Integer.parseInt((String)city.getSelectedItem());
-			cityNameEntered = (String) city.getSelectedItem();
-
-			if(cityNameEntered.equals("") || cityNameEntered.equals("Select a Country"))				
+			//Postal can be null
+			
+			//Ensure a phone number was entered
+			phoneEntered = phone.getText();
+			if(phoneEntered.isEmpty())
 			{
-				errorStrings.add("Please choose a city.");
+				errorStrings.add("Please enter a phone number.");
 
 				if(firstOffender == null)
-					firstOffender = city;
-			}
-			//Get the City ID
-			else
-			{
-				cityIdEntered = home.controller.GetCityIdByName(cityNameEntered);
-			}
-
-			//countryIdEntered = Integer.parseInt((String)country.getSelectedItem());
-			countryNameEntered = (String) country.getSelectedItem(); 
-
-			if(countryNameEntered.equals("") || countryNameEntered.equals("All"))				
-			{
-				errorStrings.add("Please choose a country.");
-
-				if(firstOffender == null)
-					firstOffender = country;
-			}
-			//Get the country ID
-			else
-			{
-				countryIdEntered = home.controller.GetCountryIdByName(countryNameEntered);
+					firstOffender = phone;
 			}
 
 			//If no errors, add first the address
@@ -329,7 +320,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 				//Inform user of result of the add
 				JOptionPane.showMessageDialog(home, resultString);
 
-				//call to clear all dialogs 
+				//call to clear all dialogs if succeeded
 				resetCustomerGUI();
 				
 			}
@@ -359,14 +350,10 @@ public class AddCustomer extends JPanel implements SakilaTab
 	class MyItemListener implements ItemListener {
 		// This method is called only if a new item has been selected.
 		public void itemStateChanged(ItemEvent evt) {
-			JComboBox cb = (JComboBox) evt.getSource();
-
-			Object item = evt.getItem();
-
 			if (evt.getStateChange() == ItemEvent.SELECTED) {
 				// Item was just selected
 				city.removeAllItems();
-				DefaultComboBoxModel cityModel = new DefaultComboBoxModel(populateCities(country.getSelectedIndex()));
+				DefaultComboBoxModel<String> cityModel = new DefaultComboBoxModel<String>(populateCities(country.getSelectedIndex()));
 				city.setModel(cityModel);
 
 			} 
@@ -395,11 +382,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 
 		//Set City back to "Select a Country"
 		city.removeAllItems();
-		DefaultComboBoxModel cityModel = new DefaultComboBoxModel(populateBlank());
+		DefaultComboBoxModel<String> cityModel = new DefaultComboBoxModel<String>(populateBlank());
 		city.setModel(cityModel);
-
 	}
-
 }
-
-

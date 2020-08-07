@@ -1,3 +1,11 @@
+/**
+ * Name: SakilaController.java
+ * Coder: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
+ * Date: Jul. 17, 2020
+ * Desc: This is the controller that interacts with the Sakila database for various
+ * 			methods for selecting and altering data.
+ */
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,14 +19,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Vector;
 import javax.swing.table.TableModel;
-
-/**
- * Name: SakilaController.java
- * Author: Connor Black, Hunter Bennett, Taylor DesRoches, James Dunton
- * Date: Jul. 17, 2020
- * Desc: This is the controller that interacts with the Sakila database for various
- * 			methods for selecting and altering data.
- */
 
 public class SakilaController
 {
@@ -165,7 +165,7 @@ public class SakilaController
 
 			//Load into vector
 			Vector<String>	cityV = new Vector<String>();
-			cityV.add("Select a city");
+			cityV.add("Select a City");
 			while(result.next()) 
 			{
 				cityV.add(result.getString("city"));
@@ -758,33 +758,32 @@ public class SakilaController
 						//If no rows were updated, don't do any more inserts
 						if(addJunctionReturnValue < 1)
 							allJunctionInsertsWorked = false;
-						else
-						{
-							//Add film copies to the inventory table
-							String sqlInventoryInsertString = "INSERT INTO inventory (film_id, store_id, last_update) VALUES";
-							
-							//For each copy entered, add an additional entry into the inventory table
-							for (int j = 0; j < copies; j++)
-							{
-								//Assuming store 1 for brevity
-								sqlInventoryInsertString += " ( " + filmId + ", 1, '" + lastUpdate + "')";
-								if(j != copies - 1)
-									sqlInventoryInsertString += ",";
-							}
-							sqlInventoryInsertString += ";";
-							
-							int inventoryUpdateReturn = statement.executeUpdate(sqlInventoryInsertString);
-							
-							if(inventoryUpdateReturn < 1) //if no rows were inserted, it failed
-								allJunctionInsertsWorked = false;
-						}
 					}
 
-					//Ensure all adds worked correctly before committing
+					//Ensure all actor junctions worked before continuing inserts
 					if(allJunctionInsertsWorked)
 					{
-						connection.commit();
-						return "Film added successfully!";
+
+						//Add film copies to the inventory table
+						String sqlInventoryInsertString = "INSERT INTO inventory (film_id, store_id, last_update) VALUES";
+						
+						//For each copy entered, add an additional entry into the inventory table
+						for (int j = 0; j < copies; j++)
+						{
+							//Assuming store 1 for brevity
+							sqlInventoryInsertString += " ( " + filmId + ", 1, '" + lastUpdate + "')";
+							if(j != copies - 1)
+								sqlInventoryInsertString += ",";
+						}
+						sqlInventoryInsertString += ";";
+						
+						int inventoryUpdateReturn = statement.executeUpdate(sqlInventoryInsertString);
+						
+						if(inventoryUpdateReturn == copies) //if all rows were inserted, it worked, so commit
+						{
+							connection.commit();
+							return "Film added successfully!";
+						}
 					}
 				}
 			}
@@ -926,8 +925,8 @@ public class SakilaController
 					int addressId = getAddressId(address, cityId, district, phone, postalCode); 
 
 					String sqlCustomerInsert = "INSERT INTO customer (address_id, create_date, email, first_name, "
-							+ "last_name, store_id) "
-							+ "VALUES (?, ?, ?, ?, ?, 1);"; 
+							+ "last_name, store_id, active) "
+							+ "VALUES (?, ?, ?, ?, ?, 1, ?);"; 
 
 					prepStatement = connection.prepareStatement(sqlCustomerInsert);
 
@@ -936,6 +935,7 @@ public class SakilaController
 					prepStatement.setString(3, email);
 					prepStatement.setString(4, firstName);
 					prepStatement.setString(5, lastName);
+					prepStatement.setBoolean(6, isActive);
 
 					addCustomerReturnValue = prepStatement.executeUpdate();
 				}
@@ -1280,7 +1280,7 @@ public class SakilaController
 	 * Returns: a string vector of the movies that are currently rented out to the customer.
 	 */
 
-	public Vector<String> GetCurrentlyRentedMovies(String firstName, String lastName){
+	public Vector<String> getCurrentlyRentedMovies(String firstName, String lastName){
 
 
 		Vector<String> moviesRented = new Vector<String>();
@@ -1446,10 +1446,10 @@ public class SakilaController
 	/**
 	 * Method Name: GetCityIdByName
 	 * Purpose: retrieves the integer id of the city with given city name from database
-	 * Accepts: a String for city name
+	 * Accepts: a String for city name, and the id of the country the city is in
 	 * Returns: the integer id of the city in the database or -1 if not found
 	 */	
-	public int GetCityIdByName(String cityNameEntered)
+	public int getCityIdByName(String cityNameEntered, int countryId)
 	{
 		int id = -1;
 		//Uses new objects because other functions with open objects call this
@@ -1462,10 +1462,11 @@ public class SakilaController
 
 			//Use new objects because a statement can still be open while calling this
 			getIdStatement = connection.prepareStatement(
-					"SELECT city_id FROM city WHERE city = ?;"
+					"SELECT city_id FROM city WHERE city = ? AND country_id = ?;"
 					);
 
 			getIdStatement.setString(1, cityNameEntered);
+			getIdStatement.setInt(2, countryId);
 
 			results = getIdStatement.executeQuery();
 
@@ -1505,7 +1506,7 @@ public class SakilaController
 	 * Accepts: a String for country name
 	 * Returns: the integer id of the country in the database or -1 if not found
 	 */	
-	public int GetCountryIdByName(String countryNameEntered)
+	public int getCountryIdByName(String countryNameEntered)
 	{
 		int id = -1;
 		//Uses new objects because other functions with open objects call this
