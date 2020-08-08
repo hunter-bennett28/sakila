@@ -79,6 +79,12 @@ public class AddRental extends JPanel implements SakilaTab
 		//add item listener to change the movie list and employee list depending on the store that's selected
 		store.addItemListener(new ItemListener() {
 
+			/**
+			 * Method Name: itemStateChanged(ItemEvent e)
+			 * Purpose: Item listener that changes the customers and employees based on the store selected
+			 * Accepts: an ItemEvent
+			 * Returns: Void
+			 */
 			@Override
 			public void itemStateChanged(ItemEvent e)
 			{					
@@ -109,6 +115,12 @@ public class AddRental extends JPanel implements SakilaTab
 
 	public class AddButtonListener implements ActionListener{
 		
+		/**
+		 * Method Name: actionPerformed(ActionEvent e)
+		 * Purpose: Action listener that adds a movie to the customers rentals
+		 * Accepts: an ActionEvent
+		 * Returns: Void
+		 */
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<String> movieRentals = movies.getSelectedValuesList();
