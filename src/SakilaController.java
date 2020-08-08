@@ -43,7 +43,8 @@ public class SakilaController
 	//Tests connection to the database, Should select all actors if it worked
 	public void closeConnection() 
 	{
-		try {
+		try
+		{
 			//Close it in reverse order
 			if(result!=null)
 				result.close();
@@ -57,7 +58,8 @@ public class SakilaController
 			if(connection!=null)
 				connection.close();
 		} 
-		catch (SQLException ex) {
+		catch (SQLException ex)
+		{
 			System.out.println("SQL Exception caught while closing database objects: " + ex.getMessage());
 		}
 	}
@@ -1229,7 +1231,8 @@ public class SakilaController
 				rentalRate = result.getDouble(2);
 			}
 			//if any of these fields didn't return correctly, return the failed result
-			if(returnDays == -1 || inventoryId == -1 || rentalRate == -1.0) {
+			if(returnDays == -1 || inventoryId == -1 || rentalRate == -1.0)
+			{
 				return rental;
 			}
 
@@ -1247,7 +1250,8 @@ public class SakilaController
 				customerId = result.getInt(1);
 			}
 			//if customer ID doesn't return correctly, return a failed result.
-			if (customerId == -1) {
+			if (customerId == -1)
+			{
 				return rental;
 			}
 
@@ -1296,7 +1300,8 @@ public class SakilaController
 				rental = "\nPlease enjoy " + movieTitle + "!\n Return date is in "+ returnDays + " days at a cost of $"+ rentalRate +". \n";
 				connection.setAutoCommit(true);
 			}
-			else {
+			else
+			{
 				connection.rollback();
 				return rental;
 			}

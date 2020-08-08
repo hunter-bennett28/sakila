@@ -34,7 +34,8 @@ public class DbUtils
 	 */
      public static TableModel resultSetToTableModel(ResultSet rs)
      {
-         try {
+         try
+         {
         	 //get the metadata for number of columns and column names
              ResultSetMetaData metaData = rs.getMetaData();
              int numberOfColumns = metaData.getColumnCount();

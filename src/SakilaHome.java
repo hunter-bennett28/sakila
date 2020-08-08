@@ -37,7 +37,7 @@ public class SakilaHome extends JFrame
 		/* Add tabs to tab pane */
 
 		HomeTab homeTab = new HomeTab();
-		tabPane.addTab("Home", new ImageIcon("images/home.png"), homeTab, "Home"); //blank pane to test on click listener for switching to add actor
+		tabPane.addTab("Home", new ImageIcon("images/home.png"), homeTab, "Home");
 
 		AddCustomer addCustomer = new AddCustomer(this);
 		tabPane.addTab("Add Customer", new ImageIcon("images/addUser.png"), addCustomer, "Add a customer to the database");
@@ -75,6 +75,12 @@ public class SakilaHome extends JFrame
 			this.tabPane = tabPane;
 		}
 
+		/**
+		 * Method Name: stateChanged(ChangeEvent e)
+		 * Purpose: Change event listener method that dynamically sets size when tab is clicked on
+		 * Accepts: a change event object
+		 * Returns: Void
+		 */
 		public void stateChanged(ChangeEvent e)
 		{
 			//Get selected component, cast as a SakilaTab to gain access to getDimensions

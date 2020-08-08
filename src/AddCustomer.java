@@ -364,10 +364,13 @@ public class AddCustomer extends JPanel implements SakilaTab
 	 * Accepts: void
 	 * Returns: void
 	 */	
-	class MyItemListener implements ItemListener {
+	class MyItemListener implements ItemListener
+	{
 		// This method is called only if a new item has been selected.
-		public void itemStateChanged(ItemEvent evt) {
-			if (evt.getStateChange() == ItemEvent.SELECTED) {
+		public void itemStateChanged(ItemEvent evt)
+		{
+			if (evt.getStateChange() == ItemEvent.SELECTED)
+			{
 				// Item was just selected
 				city.removeAllItems();
 				DefaultComboBoxModel<String> cityModel = new DefaultComboBoxModel<String>(populateCities(country.getSelectedIndex()));

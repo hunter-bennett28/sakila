@@ -14,7 +14,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Vector;
 
-
 public class FilmReport extends JPanel implements SakilaTab {
 
 	SakilaHome home;
@@ -77,7 +76,8 @@ public class FilmReport extends JPanel implements SakilaTab {
 		//Display date format to start (and if the user leaves it empty)
 		txtStartDate=new JTextField(dateFormat);
 		//Add listener so if focus is lost, it will display the date prompt
-		txtStartDate.addFocusListener(new FocusListener() {
+		txtStartDate.addFocusListener(new FocusListener()
+		{
 			/**
 			 * Method Name: focusGained(FocusEvent e)
 			 * Purpose: Focus listener that will remove the default entry when the text box is focused on
@@ -85,8 +85,10 @@ public class FilmReport extends JPanel implements SakilaTab {
 			 * Returns: Void
 			 */
 			@Override
-			public void focusGained(FocusEvent e) {
-				if(txtStartDate.getText().equals(dateFormat)) {
+			public void focusGained(FocusEvent e)
+			{
+				if(txtStartDate.getText().equals(dateFormat))
+				{
 					txtStartDate.setText("");
 				}
 			}
@@ -98,15 +100,18 @@ public class FilmReport extends JPanel implements SakilaTab {
 			 * Returns: Void
 			 */
 			@Override
-			public void focusLost(FocusEvent e) {
-				if(txtStartDate.getText().equals("")) {
+			public void focusLost(FocusEvent e)
+			{
+				if(txtStartDate.getText().equals(""))
+				{
 					txtStartDate.setText(dateFormat);
 				}
 			}
 		});
 		
 		//Add action listener so if the length is 2 or 5, it will add in the / for the date format
-		txtStartDate.addKeyListener(new KeyListener() {
+		txtStartDate.addKeyListener(new KeyListener()
+		{
 			/**
 			 * Method Name: keyTyped(KeyEvent e)
 			 * Purpose: A key listener that will input slashes when the user types the date
@@ -114,7 +119,8 @@ public class FilmReport extends JPanel implements SakilaTab {
 			 * Returns: Void
 			 */
 			@Override
-			public void keyTyped(KeyEvent e) {
+			public void keyTyped(KeyEvent e)
+			{
 				//format the date if it is the correct length and the user is not deleting their date by pressing backspace or inputing a '/'
 				if((txtStartDate.getText().length()==FIRST_SLASH_INDEX || txtStartDate.getText().length()==SECOND_SLASH_INDEX) 
 						&& !(e.getKeyChar()==KeyEvent.VK_BACK_SPACE || e.getKeyChar()==KeyEvent.VK_DELETE || e.getKeyChar()==KeyEvent.VK_SLASH))
@@ -134,7 +140,8 @@ public class FilmReport extends JPanel implements SakilaTab {
 
 		//Setup txtEndDate to act the same way
 		txtEndDate=new JTextField(dateFormat);
-		txtEndDate.addFocusListener(new FocusListener() {
+		txtEndDate.addFocusListener(new FocusListener()
+		{
 			/**
 			 * Method Name: focusGained(FocusEvent e)
 			 * Purpose: Focus listener that will remove the default entry when the text box is focused on
@@ -142,8 +149,10 @@ public class FilmReport extends JPanel implements SakilaTab {
 			 * Returns: Void
 			 */
 			@Override
-			public void focusGained(FocusEvent e) {
-				if(txtEndDate.getText().equals(dateFormat)) {
+			public void focusGained(FocusEvent e)
+			{
+				if(txtEndDate.getText().equals(dateFormat))
+				{
 					txtEndDate.setText("");
 				}
 			}
@@ -155,15 +164,18 @@ public class FilmReport extends JPanel implements SakilaTab {
 			 * Returns: Void
 			 */
 			@Override
-			public void focusLost(FocusEvent e) {
-				if(txtEndDate.getText().equals("")) {
+			public void focusLost(FocusEvent e)
+			{
+				if(txtEndDate.getText().equals(""))
+				{
 					txtEndDate.setText(dateFormat);
 				}
 			}
 		});
 
 		//Override the key listener to add in '/' when enough numbers are input
-		txtEndDate.addKeyListener(new KeyListener() {
+		txtEndDate.addKeyListener(new KeyListener()
+		{
 			/**
 			 * Method Name: keyTyped(KeyEvent e)
 			 * Purpose: A key listener that will input slashes when the user types the date
@@ -171,7 +183,8 @@ public class FilmReport extends JPanel implements SakilaTab {
 			 * Returns: Void
 			 */
 			@Override
-			public void keyTyped(KeyEvent e) {
+			public void keyTyped(KeyEvent e)
+			{
 				//format the date if it is the correct length and the user is not deleting their date by pressing backspace or inputing a '/'
 				if((txtEndDate.getText().length()==FIRST_SLASH_INDEX || txtEndDate.getText().length()==SECOND_SLASH_INDEX) 
 						&& !(e.getKeyChar()==KeyEvent.VK_BACK_SPACE || e.getKeyChar()==KeyEvent.VK_DELETE || e.getKeyChar()==KeyEvent.VK_SLASH))
@@ -214,32 +227,39 @@ public class FilmReport extends JPanel implements SakilaTab {
 		 * Returns: Void
 		 */
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent e)
+		{
 			//Check which data was provided
 			String category=cbCategory.getSelectedItem().toString();
-			if(category.equals("All")) {
+			if(category.equals("All"))
+			{
 				category=null;
 			}
 
 			String store=cbStores.getSelectedItem().toString();
 			int storeId=0;
-			if(!store.equals("All")) {
+			if(!store.equals("All"))
+			{
 				storeId=Integer.parseInt(store);
 			}
 
 			Date startDate=null;
 			//Get start date if one is given
-			if(!txtStartDate.getText().equals(dateFormat)) {
-				if(txtStartDate.getText().length()!=MAX_DATE_LENGTH) {
+			if(!txtStartDate.getText().equals(dateFormat))
+			{
+				if(txtStartDate.getText().length()!=MAX_DATE_LENGTH)
+				{
 					JOptionPane.showMessageDialog(page, "Incorrect start date entered.");
 					txtStartDate.requestFocus();
 					return;
 				}
-				else {
+				else
+				{
 					//Split up the date and convert it into a Calendar object
 					String sDate[]=txtStartDate.getText().split("/");
 					int day, month, year;
-					try {
+					try
+					{
 						//This will see if numbers were input
 						day=Integer.parseInt(sDate[0]);
 						month=Integer.parseInt(sDate[1]);
@@ -251,7 +271,8 @@ public class FilmReport extends JPanel implements SakilaTab {
 						startDate=calendar.getTime();
 
 					}
-					catch(Exception ex) {
+					catch(Exception ex)
+					{
 						JOptionPane.showMessageDialog(page, "Start date in incorrect format");
 						txtStartDate.requestFocus();
 						return;
@@ -262,16 +283,20 @@ public class FilmReport extends JPanel implements SakilaTab {
 			//Check end date as well
 			Date endDate=null;
 			//Get start date if one is given
-			if(!txtEndDate.getText().equals(dateFormat)) {
-				if(txtEndDate.getText().length()!=MAX_DATE_LENGTH) {
+			if(!txtEndDate.getText().equals(dateFormat))
+			{
+				if(txtEndDate.getText().length()!=MAX_DATE_LENGTH)
+				{
 					JOptionPane.showMessageDialog(page, "Incorrect end date entered.");
 					txtEndDate.requestFocus();
 					return;
 				}
-				else {
+				else
+				{
 					String eDate[]=txtEndDate.getText().split("/");
 					int day, month, year;
-					try {
+					try
+					{
 						//Make sure date is integers, then convert it to a calendar
 						day=Integer.parseInt(eDate[0]);
 						month=Integer.parseInt(eDate[1]);
@@ -282,7 +307,8 @@ public class FilmReport extends JPanel implements SakilaTab {
 						calendar.setLenient(false); //If a date is out of bounds, it will throw an exception
 						endDate=calendar.getTime();
 					}
-					catch(Exception ex) {
+					catch(Exception ex)
+					{
 						JOptionPane.showMessageDialog(page, "End date in incorrect format");
 						txtEndDate.requestFocus();
 						return;
@@ -295,7 +321,8 @@ public class FilmReport extends JPanel implements SakilaTab {
 			if(tm!=null) {
 				resultTable.setModel(tm);
 			}
-			else {
+			else
+			{
 				JOptionPane.showMessageDialog(page, "Error fetching query from the database");
 				return;
 			}
@@ -308,8 +335,9 @@ public class FilmReport extends JPanel implements SakilaTab {
 	 * Accepts: Void
 	 * Returns: Dimension
 	 */	@Override
-	public Dimension getDimensions() {
+	public Dimension getDimensions()
+	 {
 		return new Dimension(this.width, this.height);
-	}
+	 }
 
 }
