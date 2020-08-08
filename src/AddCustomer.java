@@ -47,16 +47,16 @@ public class AddCustomer extends JPanel implements SakilaTab
 		firstName = new JTextField();
 		leftPanel.add(firstName);
 
-		//Email Row
-		leftPanel.add(new JLabel("Email:", JLabel.RIGHT));
-		email = new JTextField();
-		leftPanel.add(email);
+		//Last Name Row
+		leftPanel.add(new JLabel("Last Name:", JLabel.RIGHT));
+		lastName = new JTextField();
+		leftPanel.add(lastName);
 
 		//Address Row
 		leftPanel.add(new JLabel("Address:", JLabel.RIGHT));
 		address = new JTextField(); 
 		leftPanel.add(address);
-		
+
 		//Country Row
 		leftPanel.add(new JLabel("Country:", JLabel.RIGHT));
 		country = new JComboBox<String>(populateCountries());
@@ -69,7 +69,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 		leftPanel.add(new JLabel("District:", JLabel.RIGHT));
 		district = new JTextField(); 
 		leftPanel.add(district);
-		
+
 		//Phone Number Row
 		leftPanel.add(new JLabel("Phone Number:", JLabel.RIGHT));
 		phone = new JTextField();
@@ -77,10 +77,10 @@ public class AddCustomer extends JPanel implements SakilaTab
 
 		/* Set up right panel */
 
-		//Last Name Row
-		rightPanel.add(new JLabel("Last Name:", JLabel.RIGHT));
-		lastName = new JTextField();
-		rightPanel.add(lastName);
+		//Email row
+		rightPanel.add(new JLabel("Email:", JLabel.RIGHT));
+		email = new JTextField();
+		rightPanel.add(email);
 
 		//Active Customer Row
 		rightPanel.add(new JLabel("Active Customer:", JLabel.RIGHT));
@@ -96,7 +96,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 		rightPanel.add(new JLabel("City:", JLabel.RIGHT));
 		city = new JComboBox<String>(populateBlank());
 		rightPanel.add(city);
-		
+
 		//Postal Code Row
 		rightPanel.add(new JLabel("Postal Code:", JLabel.RIGHT));
 		postalCode = new JTextField();
@@ -105,7 +105,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 		//Customer Buttons Row
 		addCustomer = new JButton("Add Customer");
 		addCustomer.addActionListener(new AddCustomerListener());
-		
+
 		resetForm = new JButton("Reset");
 		resetForm.addActionListener(new ActionListener()
 		{	
@@ -260,7 +260,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 			{
 				countryIdEntered = home.controller.getCountryIdByName(countryNameEntered);
 			}
-			
+
 			//Get selections from combo boxes
 			cityNameEntered = (String) city.getSelectedItem();
 			if(city.getSelectedIndex() == 0) //if blank or prompt selected, incorrect				
@@ -275,7 +275,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 			{
 				cityIdEntered = home.controller.getCityIdByName(cityNameEntered, countryIdEntered);
 			}
-			
+
 			//Ensure a district was entered
 			districtEntered = district.getText();
 			if(addressEntered.isEmpty())
@@ -287,7 +287,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 			}
 
 			//Postal can be null
-			
+
 			//Ensure a phone number was entered
 			phoneEntered = phone.getText();
 			if(phoneEntered.isEmpty())
@@ -322,7 +322,7 @@ public class AddCustomer extends JPanel implements SakilaTab
 
 				//call to clear all dialogs if succeeded
 				resetCustomerGUI();
-				
+
 			}
 			else
 			{
