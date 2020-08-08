@@ -52,7 +52,7 @@ public class AddRental extends JPanel implements SakilaTab
 		userSelectionPanel.add(customerName);
 
 		// add salesNumber combo box to layout
-		userSelectionPanel.add(new JLabel("Sales Rep #:", JLabel.CENTER));
+		userSelectionPanel.add(new JLabel("Sales Rep:", JLabel.CENTER));
 		Vector<String> employees = home.controller.getSalesStaff(Integer.parseInt(store.getSelectedItem().toString()));
 		salesNumber = new JComboBox<String>(employees);
 		salesNumber.setEditable(false);
