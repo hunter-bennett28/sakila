@@ -1,26 +1,9 @@
-
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.List;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
+import java.util.*;
+import java.util.List; //Required to specify that we are not using the java.awt.list class
+import java.util.regex.*;
 
 /**
  * Name: AddRental.java
@@ -130,91 +113,86 @@ public class AddRental extends JPanel implements SakilaTab
 			}
 		});
 
+		addButton.addActionListener(new AddButtonListener());
+	}
 
-		addButton.addActionListener(new ActionListener() {
-			/**
-			 * Method Name: actionPerformed(ActionEvent e)
-			 * Purpose: Adds a movie rental to the database based on their selection
-			 * Accepts: an ActionEvent with the event information
-			 * Returns: Void
-			 */
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				List<String> movieRentals = movies.getSelectedValuesList();
-				//Validates whether the user has selected a movie to rent and asks them to select a movie
-				//if they haven't.
+	public class AddButtonListener implements ActionListener{
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<String> movieRentals = movies.getSelectedValuesList();
+			//Validates whether the user has selected a movie to rent and asks them to select a movie
+			//if they haven't.
 
-				if (movieRentals.size() == 0)
-					JOptionPane.showMessageDialog(home, "Please select a movie to rent.");
+			if (movieRentals.size() == 0)
+				JOptionPane.showMessageDialog(home, "Please select a movie to rent.");
 
-				//Validates whether the user has selected a customer to rent to
-				//and tells them to select one if they haven't.
-				else if(customerName.getSelectedItem().toString() == "")
-					JOptionPane.showMessageDialog(home, "Please select a customer to rent a movie to.");
+			//Validates whether the user has selected a customer to rent to
+			//and tells them to select one if they haven't.
+			else if(customerName.getSelectedItem().toString() == "")
+				JOptionPane.showMessageDialog(home, "Please select a customer to rent a movie to.");
 
-				//If validations validations are passed, perform the add
-				else {
-					//This string will print result to a message dialog box
-					String resultString = "";
+			//If validations validations are passed, perform the add
+			else {
+				//This string will print result to a message dialog box
+				String resultString = "";
 
-					//get info from the gui components to pass to 
-					int salesClerkNum = Integer.parseInt(salesNumber.getSelectedItem().toString());
-					int storeNum = Integer.parseInt(store.getSelectedItem().toString());
-					String customerFirstName = customerName.getSelectedItem().toString();
-					String customerLastName = customerFirstName.substring(0,customerFirstName.indexOf(','));
-					customerFirstName = customerFirstName.substring(customerFirstName.indexOf(' ')+1);
+				//get info from the gui components to pass to 
+				int salesClerkNum = home.controller.getSalesStaffIDByName(salesNumber.getSelectedItem().toString());
+				int storeNum = Integer.parseInt(store.getSelectedItem().toString());
+				String customerFirstName = customerName.getSelectedItem().toString();
+				String customerLastName = customerFirstName.substring(0,customerFirstName.indexOf(','));
+				customerFirstName = customerFirstName.substring(customerFirstName.indexOf(' ')+1);
 
-					double currentBalance = home.controller.getBalance(customerFirstName,customerLastName);
+				double currentBalance = home.controller.getBalance(customerFirstName,customerLastName);
 
-					Vector<String> currentlyRentedMovies = new Vector<String>(home.controller.getCurrentlyRentedMovies(customerFirstName, customerLastName));
+				Vector<String> currentlyRentedMovies = new Vector<String>(home.controller.getCurrentlyRentedMovies(customerFirstName, customerLastName));
 
-					//check to see if the customer currently owes a ballance
-					if (currentBalance < 0) {
-						JOptionPane.showMessageDialog(home, "Balance for " + customerLastName + ", " + customerFirstName
-								+ " is currently $" +  currentBalance
-								+ ".\nPlease repay balance and try to rent again.");
+				//check to see if the customer currently owes a ballance
+				if (currentBalance < 0) {
+					JOptionPane.showMessageDialog(home, "Balance for " + customerLastName + ", " + customerFirstName
+							+ " is currently $" +  currentBalance
+							+ ".\nPlease repay balance and try to rent again.");
+				}
+				//check to see if the customer has movies rented out already
+				else if (currentlyRentedMovies.size()>0) {
+					resultString += customerLastName + ", " + customerFirstName + " has currently rented the following:\n";
+
+					for(String movie:currentlyRentedMovies) {
+						resultString += movie+"\n";
 					}
-					//check to see if the customer has movies rented out already
-					else if (currentlyRentedMovies.size()>0) {
-						resultString += customerLastName + ", " + customerFirstName + " has currently rented the following:\n";
+					resultString +="Please return these movies before proceeding to rent more.";
+					JOptionPane.showMessageDialog(home, resultString);
+				}
+				//if the customer is ok to rent a movie, proceed with the rental
+				else 
+				{	
+					resultString = "Movie rental(s) for " + customerFirstName + " " + customerLastName + ":";
 
-						for(String movie:currentlyRentedMovies) {
-							resultString += movie+"\n";
-						}
-						resultString +="Please return these movies before proceeding to rent more.";
-						JOptionPane.showMessageDialog(home, resultString);
+					//loop through and add movies to rental
+					for(String m: movieRentals)
+					{
+						resultString += home.controller.addRent(customerFirstName, customerLastName, m, salesClerkNum, storeNum);
 					}
-					//if the customer is ok to rent a movie, proceed with the rental
-					else 
-					{	
-						resultString = "Movie rental(s) for " + customerFirstName + " " + customerLastName + ":";
+					//find balance in the return string
+					double movieTotalBalance = 0.0;
+					Matcher doubleFinder = Pattern.compile( "[-+]?\\d*\\.\\d+([eE][-+]?\\d+)?" ).matcher(resultString);
 
-						//loop through and add movies to rental
-						for(String m: movieRentals)
-						{
-							resultString += home.controller.addRent(customerFirstName, customerLastName, m, salesClerkNum, storeNum);
-						}
-						//find balance in the return string
-						double movieTotalBalance = 0.0;
-						Matcher doubleFinder = Pattern.compile( "[-+]?\\d*\\.\\d+([eE][-+]?\\d+)?" ).matcher(resultString);
-
-						while(doubleFinder.find()) {
-							movieTotalBalance += Double.parseDouble(doubleFinder.group());
-						}
-
-						String doubleFormat = String.format("%.2f", movieTotalBalance);
-
-						resultString += "\nA total balance of $"+ doubleFormat +" + applicable tax is due.";
-
-						//show rental result and clear the fields that can be cleared and updated
-						JOptionPane.showMessageDialog(home, resultString);
-						movies.clearSelection();
-						customerName.setSelectedIndex(0);
+					while(doubleFinder.find()) {
+						movieTotalBalance += Double.parseDouble(doubleFinder.group());
 					}
+
+					String doubleFormat = String.format("%.2f", movieTotalBalance);
+
+					resultString += "\nA total balance of $"+ doubleFormat +" + applicable tax is due.";
+
+					//show rental result and clear the fields that can be cleared and updated
+					JOptionPane.showMessageDialog(home, resultString);
+					movies.clearSelection();
+					customerName.setSelectedIndex(0);
 				}
 			}
-		});
+		}
 	}
 
 	@Override

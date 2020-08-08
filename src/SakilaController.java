@@ -1020,6 +1020,47 @@ public class SakilaController
 
 	/**
 	 * Method Name: getSalesStaff(int storeNum)
+	 * Purpose: returns the id of a sales staff
+	 * Accepts: a name representing their first and last name
+	 * Returns: An int id number
+	 */
+	public int getSalesStaffIDByName(String name) {
+		int id = -1;
+		try
+		{
+			//get the list of sales staff
+			createConnection();
+			PreparedStatement pStatement=connection.prepareStatement("SELECT s.staff_id FROM staff s where s.first_name= ? AND s.last_name= ? ");
+			pStatement.setString(1, name.split(" ")[0]);
+			pStatement.setString(2, name.split(" ")[1]);
+			
+			result=pStatement.executeQuery();
+			
+			while(result.next())
+			{
+				//add the sales staff to the vector
+				id=result.getInt(1);
+			}
+
+			return id;
+		}
+		catch (SQLException ex)
+		{
+			System.out.println("SQL Exception caught: " + ex.getMessage());
+		}
+		catch (Exception ex) {
+			System.out.println("Invalid name passed to the getSalesStaffById. Error "+ex.getMessage());
+		}
+		finally
+		{
+			closeConnection();
+		}
+
+		return id;		
+	}
+	
+	/**
+	 * Method Name: getSalesStaff(int storeNum)
 	 * Purpose: returns a list of staff that currently work at the store
 	 * Accepts: storeNum - the current store's ID
 	 * Returns: A string vector of the staff that currently work at the store
@@ -1032,12 +1073,12 @@ public class SakilaController
 			//get the list of sales staff
 			createConnection();
 			statement = connection.createStatement();
-			result = statement.executeQuery("SELECT staff_id FROM staff where store_id = " + storeNum);
+			result = statement.executeQuery("SELECT s.first_name, s.last_name FROM staff s where store_id = " + storeNum);
 
 			while(result.next())
 			{
 				//add the sales staff to the vector
-				salesStaff.add(result.getString(1));
+				salesStaff.add(result.getString(1)+' '+result.getString(2));
 			}
 
 			return salesStaff;
