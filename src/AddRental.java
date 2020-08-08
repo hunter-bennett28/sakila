@@ -71,23 +71,14 @@ public class AddRental extends JPanel implements SakilaTab
 		movies.setLayoutOrientation(JList.VERTICAL);
 		JScrollPane movieScroll = new JScrollPane(movies);
 
-
 		//add button to add movie rental to the database
 		moviePanel.add(movieScroll,BorderLayout.CENTER);
 		addButton = new JButton("Add Rental");
 		this.add(addButton,BorderLayout.SOUTH);
 
-
 		//add item listener to change the movie list and employee list depending on the store that's selected
 		store.addItemListener(new ItemListener() {
 
-			/**
-			 * Method Name: itemStateChanged(ItemEvent e)
-			 * Purpose: Event handler that performs a new query on the films and employees in the database
-			 * 					and updates the respective combo boxes
-			 * Accepts: an ItemEvent with the event information
-			 * Returns: Void
-			 */
 			@Override
 			public void itemStateChanged(ItemEvent e)
 			{					
@@ -148,7 +139,7 @@ public class AddRental extends JPanel implements SakilaTab
 
 				Vector<String> currentlyRentedMovies = new Vector<String>(home.controller.getCurrentlyRentedMovies(customerFirstName, customerLastName));
 
-				//check to see if the customer currently owes a ballance
+				//check to see if the customer currently owes a balance
 				if (currentBalance < 0) {
 					JOptionPane.showMessageDialog(home, "Balance for " + customerLastName + ", " + customerFirstName
 							+ " is currently $" +  currentBalance
