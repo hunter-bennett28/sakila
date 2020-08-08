@@ -71,13 +71,19 @@ public class FilmReport extends JPanel implements SakilaTab {
 
 		//Set up the dates
 		userInputPanel.add(new JLabel("Start Date"));
-		//Set up formatting on the text fields
 
+		/* Set up formatting on the text fields */
 
 		//Display date format to start (and if the user leaves it empty)
 		txtStartDate=new JTextField(dateFormat);
 		//Add listener so if focus is lost, it will display the date prompt
 		txtStartDate.addFocusListener(new FocusListener() {
+			/**
+			 * Method Name: focusGained(FocusEvent e)
+			 * Purpose: Focus listener that will remove the default entry when the text box is focused on
+			 * Accepts: an FocusEvent
+			 * Returns: Void
+			 */
 			@Override
 			public void focusGained(FocusEvent e) {
 				if(txtStartDate.getText().equals(dateFormat)) {
@@ -85,6 +91,12 @@ public class FilmReport extends JPanel implements SakilaTab {
 				}
 			}
 
+			/**
+			 * Method Name: focusLost(FocusEvent e)
+			 * Purpose: Focus listener that will add the default entry if it is empty and focus is lost
+			 * Accepts: an FocusEvent
+			 * Returns: Void
+			 */
 			@Override
 			public void focusLost(FocusEvent e) {
 				if(txtStartDate.getText().equals("")) {
@@ -95,16 +107,25 @@ public class FilmReport extends JPanel implements SakilaTab {
 		
 		//Add action listener so if the length is 2 or 5, it will add in the / for the date format
 		txtStartDate.addKeyListener(new KeyListener() {
+			/**
+			 * Method Name: keyTyped(KeyEvent e)
+			 * Purpose: A key listener that will input slashes when the user types the date
+			 * Accepts: an KeyEvent
+			 * Returns: Void
+			 */
 			@Override
 			public void keyTyped(KeyEvent e) {
-				//format the date if it is the correct length and the user is not deleting their date by pressing backspace
-				if((txtStartDate.getText().length()==FIRST_SLASH_INDEX || txtStartDate.getText().length()==SECOND_SLASH_INDEX) && !(e.getKeyChar()==KeyEvent.VK_BACK_SPACE || e.getKeyChar()==KeyEvent.VK_DELETE))
+				//format the date if it is the correct length and the user is not deleting their date by pressing backspace or inputing a '/'
+				if((txtStartDate.getText().length()==FIRST_SLASH_INDEX || txtStartDate.getText().length()==SECOND_SLASH_INDEX) 
+						&& !(e.getKeyChar()==KeyEvent.VK_BACK_SPACE || e.getKeyChar()==KeyEvent.VK_DELETE || e.getKeyChar()==KeyEvent.VK_SLASH))
 					txtStartDate.setText(txtStartDate.getText()+'/');
 
 				//Make sure the input value is within the max number of chars 
 				if(txtStartDate.getText().length()>=MAX_DATE_LENGTH) //+1 the length as the key hasnt been input yet
 					txtStartDate.setText(txtStartDate.getText().substring(0, MAX_DATE_LENGTH-1)); 
 			}
+			
+			/** Required by KeyListener interface */
 			@Override
 			public void keyPressed(KeyEvent e) { }
 			@Override
@@ -114,6 +135,12 @@ public class FilmReport extends JPanel implements SakilaTab {
 		//Setup txtEndDate to act the same way
 		txtEndDate=new JTextField(dateFormat);
 		txtEndDate.addFocusListener(new FocusListener() {
+			/**
+			 * Method Name: focusGained(FocusEvent e)
+			 * Purpose: Focus listener that will remove the default entry when the text box is focused on
+			 * Accepts: an FocusEvent
+			 * Returns: Void
+			 */
 			@Override
 			public void focusGained(FocusEvent e) {
 				if(txtEndDate.getText().equals(dateFormat)) {
@@ -121,6 +148,12 @@ public class FilmReport extends JPanel implements SakilaTab {
 				}
 			}
 
+			/**
+			 * Method Name: focusLost(FocusEvent e)
+			 * Purpose: Focus listener that will add the default entry if it is empty and focus is lost
+			 * Accepts: an FocusEvent
+			 * Returns: Void
+			 */
 			@Override
 			public void focusLost(FocusEvent e) {
 				if(txtEndDate.getText().equals("")) {
@@ -131,16 +164,25 @@ public class FilmReport extends JPanel implements SakilaTab {
 
 		//Override the key listener to add in '/' when enough numbers are input
 		txtEndDate.addKeyListener(new KeyListener() {
+			/**
+			 * Method Name: keyTyped(KeyEvent e)
+			 * Purpose: A key listener that will input slashes when the user types the date
+			 * Accepts: an KeyEvent
+			 * Returns: Void
+			 */
 			@Override
 			public void keyTyped(KeyEvent e) {
-				//format the date if it is the correct length and the user is not deleting their date by pressing backspace
-				if((txtEndDate.getText().length()==FIRST_SLASH_INDEX || txtEndDate.getText().length()==SECOND_SLASH_INDEX) && !(e.getKeyChar()==KeyEvent.VK_BACK_SPACE || e.getKeyChar()==KeyEvent.VK_DELETE))
+				//format the date if it is the correct length and the user is not deleting their date by pressing backspace or inputing a '/'
+				if((txtEndDate.getText().length()==FIRST_SLASH_INDEX || txtEndDate.getText().length()==SECOND_SLASH_INDEX) 
+						&& !(e.getKeyChar()==KeyEvent.VK_BACK_SPACE || e.getKeyChar()==KeyEvent.VK_DELETE || e.getKeyChar()==KeyEvent.VK_SLASH))
 					txtEndDate.setText(txtEndDate.getText()+'/');
 
 				//Make sure the input value is within the max number of chars 
 				if(txtEndDate.getText().length()>=MAX_DATE_LENGTH)
 					txtEndDate.setText(txtEndDate.getText().substring(0, MAX_DATE_LENGTH-1));
 			}
+			
+			/** Required by KeyListener interface */
 			@Override
 			public void keyPressed(KeyEvent e) { }
 			@Override
@@ -165,6 +207,12 @@ public class FilmReport extends JPanel implements SakilaTab {
 
 	public class SearchButtonListener implements ActionListener{
 
+		/**
+		 * Method Name: actionPerformed(ActionEvent e)
+		 * Purpose: A action listener that will query the db with the data input (if valid)
+		 * Accepts: an ActionEvent
+		 * Returns: Void
+		 */
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			//Check which data was provided
@@ -253,8 +301,13 @@ public class FilmReport extends JPanel implements SakilaTab {
 			}
 		}
 	}
-	//Return the width and height to the home page
-	@Override
+	
+	/**
+	 * Method Name: getDimensions(ActionEvent e)
+	 * Purpose: Returns the window size to the JFrame
+	 * Accepts: Void
+	 * Returns: Dimension
+	 */	@Override
 	public Dimension getDimensions() {
 		return new Dimension(this.width, this.height);
 	}
